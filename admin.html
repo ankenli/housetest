@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>主管後台 — 房仲 CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f2f5;
+  --card:#ffffff;
+  --ink:#1a1d23;
+  --muted:#7a8190;
+  --line:#e8eaed;
+  --accent:#1d4ed8;
+  --accent-bg:#eff4ff;
+  --buyer:#0e7a4f;
+  --buyer-bg:#dcfce7;
+  --seller:#b45309;
+  --seller-bg:#fef3c7;
+  --red:#dc2626;
+  --red-bg:#fef2f2;
+  --green:#16a34a;
+  --green-bg:#f0fdf4;
+  --gold:#d97706;
+  --radius:12px;
+  --radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif;font-size:15px;min-height:100vh;}
+
+/* ── LOGIN ── */
+#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.login-box{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:40px 32px;max-width:400px;width:100%;box-shadow:0 4px 32px rgba(0,0,0,.08);}
+.login-logo{font-size:26px;font-weight:700;margin-bottom:4px;}
+.login-sub{color:var(--muted);font-size:13px;margin-bottom:32px;}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.field label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+.field input{border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;font-size:15px;font-family:inherit;background:var(--bg);color:var(--ink);outline:none;}
+.field input:focus{border-color:var(--accent);}
+.btn-primary{width:100%;border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:13px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:6px;}
+.btn-primary:active{opacity:.88;}
+.err-msg{color:var(--red);font-size:13px;margin-top:10px;display:none;}
+
+/* ── LOADING ── */
+#loadingPage{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:10px;color:var(--muted);font-size:14px;}
+
+/* ── MAIN ── */
+#mainPage{display:none;}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--ink);display:flex;flex-direction:column;z-index:30;}
+.sb-logo{padding:24px 20px 16px;font-size:16px;font-weight:700;color:#fff;border-bottom:1px solid rgba(255,255,255,.1);}
+.sb-logo span{color:#93c5fd;font-size:12px;display:block;font-weight:400;margin-top:2px;}
+.sb-nav{flex:1;padding:12px 10px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);color:rgba(255,255,255,.65);cursor:pointer;font-size:14px;font-weight:500;margin-bottom:2px;}
+.sb-item:hover{background:rgba(255,255,255,.08);color:#fff;}
+.sb-item.active{background:var(--accent);color:#fff;}
+.sb-item .icon{font-size:16px;width:20px;text-align:center;}
+.sb-bottom{padding:14px 10px;border-top:1px solid rgba(255,255,255,.1);}
+.sb-user{color:rgba(255,255,255,.5);font-size:12px;padding:0 12px 10px;}
+.sb-logout{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--radius-sm);color:rgba(255,255,255,.5);cursor:pointer;font-size:13px;}
+.sb-logout:hover{color:#fff;background:rgba(255,255,255,.08);}
+
+.main-area{margin-left:220px;min-height:100vh;padding:28px 28px 60px;}
+.page-title{font-size:22px;font-weight:700;margin-bottom:6px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:28px;}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 16px;}
+.kpi-val{font-size:32px;font-weight:700;line-height:1;margin-bottom:4px;}
+.kpi-label{font-size:12px;color:var(--muted);font-weight:500;}
+.kpi.buyer .kpi-val{color:var(--buyer);}
+.kpi.seller .kpi-val{color:var(--seller);}
+.kpi.match .kpi-val{color:var(--accent);}
+
+/* ── TABLE ── */
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+.toolbar-title{font-size:16px;font-weight:700;flex:1;}
+.search-sm{border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 12px;font-size:14px;font-family:inherit;background:var(--card);color:var(--ink);width:220px;}
+.filter-select{border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 12px;font-size:14px;font-family:inherit;background:var(--card);color:var(--ink);}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--bg);}
+th{padding:11px 14px;font-size:12px;font-weight:700;color:var(--muted);text-align:left;letter-spacing:.04em;border-bottom:1px solid var(--line);}
+td{padding:13px 14px;font-size:14px;border-bottom:1px solid var(--line);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
+.role-badge{font-size:11px;font-weight:700;border-radius:99px;padding:3px 9px;white-space:nowrap;}
+.rb-buyer{background:var(--buyer-bg);color:var(--buyer);}
+.rb-seller{background:var(--seller-bg);color:var(--seller);}
+.agent-tag{font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:3px 9px;color:var(--muted);}
+.empty-row td{text-align:center;color:var(--muted);padding:36px 0;}
+
+/* ── MATCH ── */
+.match-grid{display:grid;gap:12px;}
+.mcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;display:flex;gap:16px;align-items:flex-start;}
+.mcard-score{min-width:52px;height:52px;border-radius:50%;background:var(--accent-bg);color:var(--accent);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--accent);}
+.mcard-body{flex:1;}
+.mcard-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap;}
+.mcard-name{font-weight:700;font-size:15px;}
+.mcard-vs{color:var(--muted);font-size:13px;}
+.mcard-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.mtag{font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:3px 9px;color:var(--muted);}
+.mtag.hit{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.stat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
+.stat-card-title{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:16px;letter-spacing:.04em;}
+.agent-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.agent-row:last-child{margin-bottom:0;}
+.agent-name{font-size:14px;font-weight:500;min-width:72px;}
+.bar-wrap{flex:1;background:var(--bg);border-radius:99px;height:8px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:99px;background:var(--accent);}
+.bar-num{font-size:13px;font-weight:700;color:var(--ink);min-width:28px;text-align:right;}
+.region-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;}
+.region-row:last-child{border-bottom:none;}
+.region-cnt{font-weight:700;color:var(--accent);}
+
+/* ── DETAIL MODAL ── */
+#modalOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--card);border-radius:20px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;padding:28px;}
+.modal-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.modal-title{font-size:20px;font-weight:700;flex:1;}
+.modal-close{border:none;background:none;font-size:24px;cursor:pointer;color:var(--muted);line-height:1;}
+.msec{margin-bottom:18px;}
+.msec-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;}
+.mfield{display:flex;gap:8px;margin-bottom:8px;}
+.mfield:last-child{margin-bottom:0;}
+.mf-label{font-size:13px;color:var(--muted);min-width:72px;}
+.mf-val{font-size:14px;font-weight:500;flex:1;}
+.note-chip{background:var(--bg);border-radius:var(--radius-sm);padding:8px 12px;margin-bottom:6px;}
+.note-chip-meta{font-size:11px;color:var(--muted);margin-bottom:3px;}
+.note-chip-text{font-size:14px;}
+
+/* sync */
+.sync-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
+.sync-dot{width:8px;height:8px;border-radius:50%;}
+.sync-dot.ok{background:var(--green);}
+.sync-dot.ing{background:#f59e0b;}
+.sync-dot.err{background:var(--red);}
+
+/* mobile sidebar toggle */
+@media(max-width:768px){
+  .sidebar{width:100%;height:56px;flex-direction:row;align-items:center;bottom:auto;}
+  .sb-logo{padding:0 16px;border-bottom:none;border-right:1px solid rgba(255,255,255,.1);height:100%;display:flex;flex-direction:column;justify-content:center;}
+  .sb-logo span{display:none;}
+  .sb-nav{display:flex;padding:0 6px;overflow-x:auto;}
+  .sb-item{flex-direction:column;gap:2px;padding:8px 10px;font-size:10px;white-space:nowrap;}
+  .sb-item .icon{font-size:18px;width:auto;}
+  .sb-bottom{display:none;}
+  .main-area{margin-left:0;padding:16px 14px 60px;margin-top:56px;}
+  .stats-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+<div class="login-box">
+  <div class="login-logo">🏢 主管後台</div>
+  <div class="login-sub">房仲 CRM · 管理介面</div>
+  <div class="field"><label>GitHub Token</label><input id="tokenInput" type="password" placeholder="ghp_xxxxxxxx" autocomplete="off"></div>
+  <div class="field"><label>主管密碼</label><input id="pwInput" type="password" placeholder="請輸入主管密碼" autocomplete="off"></div>
+  <button class="btn-primary" id="loginBtn">進入後台</button>
+  <div class="err-msg" id="loginErr"></div>
+</div>
+</div>
+
+<!-- LOADING -->
+<div id="loadingPage"><div>載入資料中...</div></div>
+
+<!-- MAIN -->
+<div id="mainPage">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-logo">🏢 主管後台 <span>房仲 CRM</span></div>
+    <div class="sb-nav">
+      <div class="sb-item active" data-sec="overview"><span class="icon">📊</span>總覽</div>
+      <div class="sb-item" data-sec="clients"><span class="icon">👥</span>所有客戶</div>
+      <div class="sb-item" data-sec="match"><span class="icon">🔗</span>配對結果</div>
+      <div class="sb-item" data-sec="stats"><span class="icon">📈</span>業績統計</div>
+    </div>
+    <div class="sb-bottom">
+      <div class="sb-user" id="sbUser"></div>
+      <div class="sb-logout" id="logoutBtn">🚪 登出</div>
+    </div>
+  </div>
+
+  <!-- Main Area -->
+  <div class="main-area">
+
+    <!-- 總覽 -->
+    <div id="sec-overview" class="section">
+      <div class="page-title">總覽</div>
+      <div class="page-sub" id="overviewSub">載入中...</div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <div class="toolbar"><div class="toolbar-title">最新動態</div><div class="sync-row"><div class="sync-dot" id="syncDot"></div><span id="syncLabel">同步中</span></div></div>
+      <div class="tcard"><table><thead><tr><th>客戶</th><th>身份</th><th>負責業務</th><th>地區</th><th>建案/偏好</th></tr></thead><tbody id="recentBody"></tbody></table></div>
+    </div>
+
+    <!-- 所有客戶 -->
+    <div id="sec-clients" class="section" style="display:none">
+      <div class="page-title">所有客戶</div>
+      <div class="page-sub">點擊任一客戶查看詳情</div>
+      <div class="toolbar">
+        <input class="search-sm" id="clientSearch" type="search" placeholder="搜尋姓名、建案、地區...">
+        <select class="filter-select" id="roleFilter"><option value="">全部身份</option><option value="buyer">🟢 買方</option><option value="seller">🟡 賣方</option></select>
+        <select class="filter-select" id="agentFilter"><option value="">全部業務</option></select>
+      </div>
+      <div class="tcard"><table><thead><tr><th>姓名</th><th>身份</th><th>地區</th><th>建案/偏好</th><th>格局</th><th>預算/開價</th><th>負責業務</th></tr></thead><tbody id="clientBody"></tbody></table></div>
+    </div>
+
+    <!-- 配對結果 -->
+    <div id="sec-match" class="section" style="display:none">
+      <div class="page-title">買賣方配對</div>
+      <div class="page-sub">依地區、格局、預算自動比對</div>
+      <div class="toolbar">
+        <select class="filter-select" id="matchRegion"><option value="">全部地區</option></select>
+        <button class="btn-primary" style="width:auto;padding:9px 20px;font-size:14px;" id="runMatchBtn">🔗 重新配對</button>
+      </div>
+      <div class="match-grid" id="matchGrid"></div>
+    </div>
+
+    <!-- 業績統計 -->
+    <div id="sec-stats" class="section" style="display:none">
+      <div class="page-title">業績統計</div>
+      <div class="page-sub">各業務客戶數與地區分布</div>
+      <div class="stats-grid" id="statsGrid"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div id="modalOverlay">
+<div class="modal" id="modal">
+  <div class="modal-header">
+    <div class="modal-title" id="modalTitle"></div>
+    <button class="modal-close" id="modalClose">✕</button>
+  </div>
+  <div id="modalBody"></div>
+</div>
+</div>
+
+<script>
+// ── CONFIG ── 
+const GH_USER = 'anken';
+const GH_REPO = 'crm-data';
+const GH_FILE = 'clients.json';
+const API_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}`;
+const ADMIN_PW = 'admin2025'; // ← 改成你要的主管密碼
+
+let clients = [], ghToken = '';
+
+// ── AUTH ──
+document.getElementById('loginBtn').onclick = async () => {
+  const t = document.getElementById('tokenInput').value.trim();
+  const pw = document.getElementById('pwInput').value.trim();
+  const err = document.getElementById('loginErr');
+  if (pw !== ADMIN_PW) { err.textContent = '主管密碼錯誤'; err.style.display = 'block'; return; }
+  if (!t.startsWith('ghp_') && !t.startsWith('github_pat_')) { err.textContent = '請輸入正確的 GitHub Token'; err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  ghToken = t;
+  sessionStorage.setItem('admin_token', t);
+  await loadData();
+};
+document.getElementById('logoutBtn').onclick = () => { sessionStorage.removeItem('admin_token'); ghToken = ''; show('loginPage'); };
+
+async function loadData() {
+  show('loadingPage');
+  try {
+    const r = await fetch(API_URL, { headers: { Authorization: 'token ' + ghToken, Accept: 'application/vnd.github.v3+json' } });
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    clients = JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g, '')))));
+    setSyncDot('ok');
+    show('mainPage');
+    buildAll();
+  } catch {
+    show('loginPage');
+    document.getElementById('loginErr').textContent = 'Token 有誤或無法讀取資料';
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+function show(id) {
+  ['loginPage','loadingPage','mainPage'].forEach(p => {
+    const el = document.getElementById(p);
+    if (!el) return;
+    el.style.display = p === id ? (p === 'loadingPage' ? 'flex' : 'block') : 'none';
+  });
+}
+
+function setSyncDot(s) {
+  const d = document.getElementById('syncDot'); const l = document.getElementById('syncLabel');
+  if (!d) return;
+  d.className = 'sync-dot ' + s;
+  l.textContent = s === 'ok' ? '已同步' : s === 'ing' ? '同步中...' : '同步失敗';
+}
+
+// ── NAV ──
+document.querySelectorAll('.sb-item').forEach(item => {
+  item.onclick = () => {
+    document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+    const sec = document.getElementById('sec-' + item.dataset.sec);
+    if (sec) sec.style.display = 'block';
+  };
+});
+
+// ── BUILD ALL ──
+function buildAll() {
+  buildOverview();
+  buildClientTable();
+  buildMatch();
+  buildStats();
+}
+
+// ── OVERVIEW ──
+function buildOverview() {
+  const buyers = clients.filter(c => c.role === 'buyer');
+  const sellers = clients.filter(c => c.role === 'seller');
+  const agents = [...new Set(clients.map(c => c.agent).filter(Boolean))];
+  document.getElementById('overviewSub').textContent = `共 ${clients.length} 筆客戶 ‧ ${agents.length} 位業務 ‧ 最後更新 ${new Date().toLocaleDateString('zh-TW')}`;
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi"><div class="kpi-val">${clients.length}</div><div class="kpi-label">總客戶數</div></div>
+    <div class="kpi buyer"><div class="kpi-val">${buyers.length}</div><div class="kpi-label">🟢 買方</div></div>
+    <div class="kpi seller"><div class="kpi-val">${sellers.length}</div><div class="kpi-label">🟡 賣方</div></div>
+    <div class="kpi"><div class="kpi-val">${agents.length}</div><div class="kpi-label">業務人數</div></div>
+    <div class="kpi match"><div class="kpi-val">${runMatch().length}</div><div class="kpi-label">🔗 配對組數</div></div>`;
+  const recent = [...clients].slice(0, 15);
+  const tbody = document.getElementById('recentBody');
+  tbody.innerHTML = recent.length ? recent.map(c => `
+    <tr class="clickable" data-id="${c.id}">
+      <td><strong>${esc(c.name)}</strong></td>
+      <td><span class="role-badge ${c.role==='buyer'?'rb-buyer':'rb-seller'}">${c.role==='buyer'?'🟢 買方':'🟡 賣方'}</span></td>
+      <td><span class="agent-tag">${esc(c.agent||'—')}</span></td>
+      <td>${esc(c.region||'—')}</td>
+      <td>${esc((c.role==='buyer'?c.buyProject:c.sellProject)||'—')}</td>
+    </tr>`).join('') : '<tr class="empty-row"><td colspan="5">尚無資料</td></tr>';
+  tbody.querySelectorAll('tr[data-id]').forEach(r => r.onclick = () => openModal(r.dataset.id));
+}
+
+// ── CLIENT TABLE ──
+function buildClientTable() {
+  const agents = [...new Set(clients.map(c => c.agent).filter(Boolean))];
+  const af = document.getElementById('agentFilter');
+  af.innerHTML = '<option value="">全部業務</option>' + agents.map(a => `<option>${esc(a)}</option>`).join('');
+  renderClientTable();
+}
+function renderClientTable() {
+  const q = (document.getElementById('clientSearch').value || '').toLowerCase();
+  const role = document.getElementById('roleFilter').value;
+  const agent = document.getElementById('agentFilter').value;
+  let items = clients.filter(c => {
+    if (role && c.role !== role) return false;
+    if (agent && c.agent !== agent) return false;
+    if (q && ![(c.name||''),(c.region||''),(c.buyProject||''),(c.sellProject||''),(c.agent||'')].join(' ').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const tbody = document.getElementById('clientBody');
+  tbody.innerHTML = items.length ? items.map(c => {
+    const project = c.role==='buyer' ? (c.buyProject||'—') : (c.sellProject||'—');
+    const layout = c.role==='buyer' ? (c.buyLayout||'—') : (c.sellLayout||'—');
+    const money = c.role==='buyer' ? ((c.budgetMin||'?')+'～'+(c.budgetMax||'?')+'萬') : (c.sellPrice?c.sellPrice+'萬':'—');
+    return `<tr class="clickable" data-id="${c.id}">
+      <td><strong>${esc(c.name)}</strong></td>
+      <td><span class="role-badge ${c.role==='buyer'?'rb-buyer':'rb-seller'}">${c.role==='buyer'?'🟢 買方':'🟡 賣方'}</span></td>
+      <td>${esc(c.region||'—')}</td>
+      <td>${esc(project)}</td>
+      <td>${esc(layout)}</td>
+      <td>${esc(money)}</td>
+      <td><span class="agent-tag">${esc(c.agent||'—')}</span></td>
+    </tr>`;
+  }).join('') : '<tr class="empty-row"><td colspan="7">沒有符合的客戶</td></tr>';
+  tbody.querySelectorAll('tr[data-id]').forEach(r => r.onclick = () => openModal(r.dataset.id));
+}
+document.getElementById('clientSearch').addEventListener('input', renderClientTable);
+document.getElementById('roleFilter').addEventListener('change', renderClientTable);
+document.getElementById('agentFilter').addEventListener('change', renderClientTable);
+
+// ── MATCH ──
+function runMatch() {
+  const buyers = clients.filter(c => c.role === 'buyer');
+  const sellers = clients.filter(c => c.role === 'seller');
+  const matches = [];
+  buyers.forEach(b => {
+    sellers.forEach(s => {
+      let score = 0; const hits = [];
+      // 地區
+      if (b.region && s.region && b.region === s.region) { score += 40; hits.push('✅ 地區相符'); }
+      // 格局
+      if (b.buyLayout && s.sellLayout && b.buyLayout === s.sellLayout) { score += 30; hits.push('✅ 格局相符'); }
+      // 預算 vs 開價
+      if (b.budgetMax && s.sellPrice) {
+        const bMax = parseInt(b.budgetMax); const sp = parseInt(s.sellPrice);
+        if (!isNaN(bMax) && !isNaN(sp)) {
+          if (sp <= bMax) { score += 30; hits.push('✅ 預算符合'); }
+          else if (sp <= bMax * 1.15) { score += 15; hits.push('⚠️ 預算略超'); }
+        }
+      }
+      if (score >= 30) matches.push({ buyer: b, seller: s, score, hits });
+    });
+  });
+  return matches.sort((a, b) => b.score - a.score);
+}
+
+function buildMatch() {
+  const regions = [...new Set(clients.map(c => c.region).filter(Boolean))];
+  const mrf = document.getElementById('matchRegion');
+  mrf.innerHTML = '<option value="">全部地區</option>' + regions.map(r => `<option>${esc(r)}</option>`).join('');
+  renderMatch();
+}
+function renderMatch() {
+  const region = document.getElementById('matchRegion').value;
+  let matches = runMatch();
+  if (region) matches = matches.filter(m => m.buyer.region === region || m.seller.region === region);
+  const grid = document.getElementById('matchGrid');
+  if (!matches.length) { grid.innerHTML = '<div style="text-align:center;color:var(--muted);padding:48px 0;font-size:14px;">目前沒有符合的配對<br>需要買賣方在相同地區且格局/預算相符</div>'; return; }
+  grid.innerHTML = matches.map(m => `
+    <div class="mcard">
+      <div class="mcard-score">${m.score}%</div>
+      <div class="mcard-body">
+        <div class="mcard-row">
+          <span class="role-badge rb-buyer">🟢 ${esc(m.buyer.name)}</span>
+          <span class="mcard-vs">×</span>
+          <span class="role-badge rb-seller">🟡 ${esc(m.seller.name)}</span>
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">
+          業務：${esc(m.buyer.agent||'—')} / ${esc(m.seller.agent||'—')}
+        </div>
+        <div class="mcard-tags">
+          ${m.hits.map(h => `<span class="mtag ${h.startsWith('✅')?'hit':''}">${h}</span>`).join('')}
+          ${m.buyer.region?`<span class="mtag">${esc(m.buyer.region)}</span>`:''}
+          ${m.buyer.buyLayout?`<span class="mtag">${esc(m.buyer.buyLayout)}</span>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+document.getElementById('matchRegion').addEventListener('change', renderMatch);
+document.getElementById('runMatchBtn').onclick = async () => {
+  setSyncDot('ing');
+  try {
+    const r = await fetch(API_URL, { headers: { Authorization: 'token ' + ghToken, Accept: 'application/vnd.github.v3+json' } });
+    const d = await r.json();
+    clients = JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g, '')))));
+    buildAll(); setSyncDot('ok');
+  } catch { setSyncDot('err'); }
+};
+
+// ── STATS ──
+function buildStats() {
+  const agents = [...new Set(clients.map(c => c.agent).filter(Boolean))];
+  const agentCounts = agents.map(a => ({ name: a, count: clients.filter(c => c.agent === a).length })).sort((a, b) => b.count - a.count);
+  const maxCount = agentCounts[0]?.count || 1;
+  const regionMap = {};
+  clients.forEach(c => { if (c.region) regionMap[c.region] = (regionMap[c.region] || 0) + 1; });
+  const regions = Object.entries(regionMap).sort((a, b) => b[1] - a[1]);
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-card-title">業務客戶數</div>
+      ${agentCounts.length ? agentCounts.map(a => `
+        <div class="agent-row">
+          <div class="agent-name">${esc(a.name)}</div>
+          <div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(a.count/maxCount*100)}%"></div></div>
+          <div class="bar-num">${a.count}</div>
+        </div>`).join('') : '<div style="color:var(--muted);font-size:14px;">尚無資料</div>'}
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">地區分布</div>
+      ${regions.length ? regions.slice(0,10).map(([r, n]) => `
+        <div class="region-row"><span>${esc(r)}</span><span class="region-cnt">${n} 筆</span></div>`).join('') : '<div style="color:var(--muted);font-size:14px;">尚無資料</div>'}
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">買方 vs 賣方</div>
+      <div class="agent-row"><div class="agent-name">🟢 買方</div><div class="bar-wrap"><div class="bar-fill" style="width:${clients.length?Math.round(clients.filter(c=>c.role==='buyer').length/clients.length*100):0}%;background:var(--buyer)"></div></div><div class="bar-num">${clients.filter(c=>c.role==='buyer').length}</div></div>
+      <div class="agent-row"><div class="agent-name">🟡 賣方</div><div class="bar-wrap"><div class="bar-fill" style="width:${clients.length?Math.round(clients.filter(c=>c.role==='seller').length/clients.length*100):0}%;background:var(--seller)"></div></div><div class="bar-num">${clients.filter(c=>c.role==='seller').length}</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">聯絡紀錄最多</div>
+      ${[...clients].sort((a,b)=>(b.notes||[]).length-(a.notes||[]).length).slice(0,8).map(c=>`
+        <div class="region-row"><span>${esc(c.name)} <span style="color:var(--muted);font-size:12px;">${esc(c.agent||'')}</span></span><span class="region-cnt">${(c.notes||[]).length} 則</span></div>`).join('') || '<div style="color:var(--muted);font-size:14px;">尚無資料</div>'}
+    </div>`;
+}
+
+// ── MODAL ──
+function openModal(id) {
+  const c = clients.find(x => x.id === id); if (!c) return;
+  const isBuyer = c.role === 'buyer';
+  const f = (label, val) => val ? `<div class="mfield"><div class="mf-label">${label}</div><div class="mf-val">${esc(val)}</div></div>` : '';
+  document.getElementById('modalTitle').textContent = c.name || '（未命名）';
+  const notes = (c.notes || []);
+  document.getElementById('modalBody').innerHTML = `
+    <div class="msec">
+      <div class="msec-title">基本資料</div>
+      ${f('身份', isBuyer ? '🟢 買方' : '🟡 賣方')}
+      ${f('負責業務', c.agent)}
+      ${f('電話', c.phone)}
+      ${f('地區', c.region)}
+      ${f('地址', c.addr)}
+    </div>
+    ${isBuyer ? `<div class="msec">
+      <div class="msec-title">買方需求</div>
+      ${f('偏好建案', c.buyProject)}
+      ${f('格局', c.buyLayout)}
+      ${f('坪數', c.buySize)}
+      ${f('預算', (c.budgetMin||c.budgetMax) ? (c.budgetMin||'?')+'～'+(c.budgetMax||'?')+'萬' : '')}
+      ${f('其他需求', c.buyNote)}
+    </div>` : `<div class="msec">
+      <div class="msec-title">賣方物件</div>
+      ${f('建案名稱', c.sellProject)}
+      ${f('格局', c.sellLayout)}
+      ${f('坪數', c.sellSize)}
+      ${f('開價', c.sellPrice ? c.sellPrice+'萬' : '')}
+      ${f('物件備注', c.sellNote)}
+    </div>`}
+    ${c.generalNote ? `<div class="msec">${f('備注', c.generalNote)}</div>` : ''}
+    <div class="msec">
+      <div class="msec-title">聯絡紀錄（${notes.length} 則）</div>
+      ${notes.length ? [...notes].reverse().map(n => `
+        <div class="note-chip">
+          <div class="note-chip-meta">${esc(n.date)}</div>
+          <div class="note-chip-text">${esc(n.text)}</div>
+        </div>`).join('') : '<div style="color:var(--muted);font-size:13px;">尚無聯絡紀錄</div>'}
+    </div>`;
+  document.getElementById('modalOverlay').style.display = 'flex';
+}
+document.getElementById('modalClose').onclick = () => document.getElementById('modalOverlay').style.display = 'none';
+document.getElementById('modalOverlay').onclick = e => { if (e.target === document.getElementById('modalOverlay')) document.getElementById('modalOverlay').style.display = 'none'; };
+
+// ── UTILS ──
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── INIT ──
+const saved = sessionStorage.getItem('admin_token');
+if (saved) { ghToken = saved; loadData(); } else { show('loginPage'); }
+</script>
+</body>
+</html>
