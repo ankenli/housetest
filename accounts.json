@@ -4,5 +4,11 @@
     "password": "anken0416",
     "displayName": "老闆",
     "active": true
+  },
+  {
+    "username": "an01",
+    "password": "an01",
+    "displayName": "小陳",
+    "active": true
   }
 ]
