@@ -165,6 +165,7 @@ tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
   <div class="login-sub">房仲 CRM · 管理介面</div>
   <div class="field"><label>主管帳號</label><input id="adminUser" type="text" placeholder="請輸入帳號" autocomplete="username"></div>
   <div class="field"><label>主管密碼</label><input id="adminPw" type="password" placeholder="請輸入密碼" autocomplete="current-password"></div>
+  <div class="field"><label>GitHub Token</label><input id="ghTokenInput" type="password" placeholder="ghp_xxxxxxxx" autocomplete="off"></div>
   <button class="btn-primary" id="loginBtn">進入後台</button>
   <div class="err-msg" id="loginErr">帳號或密碼錯誤</div>
 </div>
@@ -267,14 +268,15 @@ tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
 // ── CONFIG ──
 const GH_USER = 'ankenli';
 const GH_REPO = 'housetest';
-const GH_TOKEN = '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'; // ← 貼上你的 GitHub Token
-const ADMIN_PW_HASH = 'anken0416';       // ← 主管密碼（明碼，之後可改）
-const ADMIN_USER = 'anken0416';              // ← 主管帳號
+const ADMIN_PW_HASH = 'admin2025';       // ← 主管密碼（明碼，之後可改）
+const ADMIN_USER = 'admin';              // ← 主管帳號
 const BOSS_NAME = '老闆';
 
 const CLIENTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/clients.json`;
 const ACCOUNTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/accounts.json`;
-const GH_HEADERS = { Authorization:'token '+GH_TOKEN, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' };
+
+let GH_TOKEN = sessionStorage.getItem('admin_gh_token') || '';
+function ghHeaders(){ return { Authorization:'token '+GH_TOKEN, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' }; }
 
 let clients=[], clientsSha=null, accounts=[], accountsSha=null;
 
@@ -283,7 +285,7 @@ async function ghGet(url){
   console.log('[CRM-DEBUG] fetching:', url);
   let r;
   try{
-    r=await fetch(url,{headers:GH_HEADERS});
+    r=await fetch(url,{headers:ghHeaders()});
   }catch(fetchErr){
     console.error('[CRM-DEBUG] fetch() threw an error before getting a response:', fetchErr);
     throw fetchErr;
@@ -301,8 +303,8 @@ async function ghGet(url){
 async function ghPut(url,data,sha){
   const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
   const body={message:'admin update',content};if(sha)body.sha=sha;
-  const r=await fetch(url,{method:'PUT',headers:GH_HEADERS,body:JSON.stringify(body)});
-  if(!r.ok)throw new Error();
+  const r=await fetch(url,{method:'PUT',headers:ghHeaders(),body:JSON.stringify(body)});
+  if(!r.ok){const bodyText=await r.text().catch(()=>'');throw new Error('GitHub API '+r.status+': '+bodyText);}
   const d=await r.json();return d.content?.sha;
 }
 function setSyncDot(s){
@@ -316,13 +318,17 @@ function setSyncDot(s){
 document.getElementById('loginBtn').onclick=async()=>{
   const u=document.getElementById('adminUser').value.trim();
   const p=document.getElementById('adminPw').value.trim();
+  const t=document.getElementById('ghTokenInput').value.trim();
   const err=document.getElementById('loginErr');
-  if(u!==ADMIN_USER||p!==ADMIN_PW_HASH){err.style.display='block';return;}
+  if(u!==ADMIN_USER||p!==ADMIN_PW_HASH){err.textContent='帳號或密碼錯誤';err.style.display='block';return;}
+  if(!t){err.textContent='請輸入 GitHub Token';err.style.display='block';return;}
   err.style.display='none';
+  GH_TOKEN=t;
+  sessionStorage.setItem('admin_gh_token',t);
   show('loadingPage');
   await loadAll();
 };
-document.getElementById('logoutBtn').onclick=()=>{sessionStorage.removeItem('admin_ok');show('loginPage');};
+document.getElementById('logoutBtn').onclick=()=>{sessionStorage.removeItem('admin_ok');sessionStorage.removeItem('admin_gh_token');GH_TOKEN='';show('loginPage');};
 
 async function loadAll(){
   try{
@@ -591,7 +597,7 @@ document.getElementById('modalOverlay').onclick=e=>{if(e.target===document.getEl
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // ── INIT ──
-if(sessionStorage.getItem('admin_ok')){loadAll();}else{show('loginPage');}
+if(sessionStorage.getItem('admin_ok')&&GH_TOKEN){loadAll();}else{show('loginPage');}
 </script>
 </body>
 </html>
