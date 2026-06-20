@@ -10,5 +10,11 @@
     "password": "an01",
     "displayName": "小陳",
     "active": true
+  },
+  {
+    "username": "an02",
+    "password": "an02",
+    "displayName": "小王",
+    "active": true
   }
 ]
