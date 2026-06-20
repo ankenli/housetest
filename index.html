@@ -3,69 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="房仲 CRM">
 <title>房仲 CRM</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f5f6f8;
-  --card:#ffffff;
-  --ink:#1a1d23;
-  --muted:#7a8190;
-  --line:#e8eaed;
-  --accent:#2563eb;
-  --accent-bg:#eff4ff;
-  --accent-light:#dbeafe;
-  --buyer:#0e7a4f;
-  --buyer-bg:#dcfce7;
-  --seller:#b45309;
-  --seller-bg:#fef3c7;
-  --red:#dc2626;
-  --red-bg:#fef2f2;
-  --green:#16a34a;
-  --green-bg:#f0fdf4;
-  --radius:12px;
-  --radius-sm:8px;
+  --bg:#f5f6f8;--card:#fff;--ink:#1a1d23;--muted:#7a8190;--line:#e8eaed;
+  --accent:#2563eb;--accent-bg:#eff4ff;--accent-light:#dbeafe;
+  --buyer:#0e7a4f;--buyer-bg:#dcfce7;--seller:#b45309;--seller-bg:#fef3c7;
+  --red:#dc2626;--green:#16a34a;--radius:12px;--radius-sm:8px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
 body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif;font-size:15px;padding-bottom:80px;}
-
-/* ── LOGIN ── */
 #loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
 .login-box{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:36px 28px;max-width:380px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.06);}
-.login-logo{font-size:28px;font-weight:700;letter-spacing:-.5px;margin-bottom:4px;}
+.login-logo{font-size:28px;font-weight:700;margin-bottom:4px;}
 .login-sub{color:var(--muted);font-size:13px;margin-bottom:28px;}
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
 .field label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.05em;}
 .field input,.field select{border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 13px;font-size:15px;font-family:inherit;background:var(--bg);color:var(--ink);outline:none;}
-.field input:focus,.field select:focus{border-color:var(--accent);}
-.btn-primary{width:100%;border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:13px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:6px;letter-spacing:.03em;}
+.field input:focus{border-color:var(--accent);}
+.btn-primary{width:100%;border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:13px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:6px;}
 .btn-primary:active{opacity:.88;}
 .err-msg{color:var(--red);font-size:13px;margin-top:8px;display:none;}
-
-/* ── LOADING ── */
 #loadingPage{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;color:var(--muted);font-size:14px;}
-
-/* ── LIST PAGE ── */
 #listPage{display:none;}
 .topbar{background:var(--card);border-bottom:1px solid var(--line);padding:14px 16px;position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;}
 .topbar-title{font-size:17px;font-weight:700;flex:1;}
 .topbar-user{font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:5px 12px;white-space:nowrap;}
-.topbar-logout{border:none;background:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;font-family:inherit;flex-shrink:0;}
+.topbar-logout{border:none;background:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;font-family:inherit;}
 .sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .sync-dot.ok{background:var(--green);}
 .sync-dot.ing{background:#f59e0b;}
 .sync-dot.err{background:var(--red);}
-
 .wrap{max-width:640px;margin:0 auto;padding:16px 14px;}
-
-/* tabs */
 .tab-bar{display:flex;border-bottom:2px solid var(--line);margin-bottom:16px;}
 .tab{flex:1;padding:11px 0;text-align:center;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;font-family:inherit;border-bottom:3px solid transparent;margin-bottom:-2px;}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
-
-/* search + filter */
 .searchbar{position:relative;margin-bottom:10px;}
 .searchbar input{width:100%;border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 14px 10px 38px;font-size:15px;font-family:inherit;background:var(--card);color:var(--ink);}
 .searchbar::before{content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;}
@@ -74,11 +47,8 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
 .ftag.active{background:var(--ink);color:#fff;border-color:var(--ink);}
 .ftag.f-buyer.active{background:var(--buyer);border-color:var(--buyer);}
 .ftag.f-seller.active{background:var(--seller);border-color:var(--seller);}
-
-/* cards */
 .clist{display:flex;flex-direction:column;gap:8px;}
-.ccard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:box-shadow .1s;}
-.ccard:active{box-shadow:0 0 0 2px var(--accent-light);}
+.ccard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;cursor:pointer;}
 .ccard-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
 .ccard-name{font-size:16px;font-weight:700;flex:1;}
 .role-badge{font-size:11px;font-weight:700;border-radius:99px;padding:3px 10px;}
@@ -87,47 +57,35 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
 .ccard-info{display:flex;gap:14px;flex-wrap:wrap;}
 .cinfo{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:4px;}
 .cinfo strong{color:var(--ink);font-weight:500;}
-.arrow{color:var(--line);font-size:18px;margin-left:auto;}
 .empty{text-align:center;color:var(--muted);padding:48px 0;font-size:14px;}
 .empty-icon{font-size:36px;margin-bottom:8px;}
-
-/* FAB */
 .fab{position:fixed;bottom:28px;right:18px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.4);display:none;align-items:center;justify-content:center;z-index:100;}
-.fab:active{transform:scale(.93);}
-
-/* ── DETAIL PAGE ── */
 #detailPage{display:none;}
 .dheader{background:var(--card);border-bottom:1px solid var(--line);padding:14px 16px;position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;}
 .dback{border:none;background:none;font-size:26px;cursor:pointer;color:var(--ink);padding:0 4px;line-height:1;}
-.dheader-info{flex:1;min-width:0;}
+.dheader-info{flex:1;}
 .dheader-name{font-size:19px;font-weight:700;}
 .dheader-sub{font-size:12px;color:var(--muted);margin-top:2px;}
 .dedit-btn{border:none;background:none;color:var(--accent);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;}
-
 .dbody{max-width:640px;margin:0 auto;padding:16px 14px;}
 .dsec{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
 .dsec-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}
 .dfield{display:flex;gap:8px;margin-bottom:10px;align-items:flex-start;}
 .dfield:last-child{margin-bottom:0;}
-.dfield-label{font-size:13px;color:var(--muted);min-width:72px;padding-top:1px;}
+.dfield-label{font-size:13px;color:var(--muted);min-width:72px;}
 .dfield-val{font-size:14px;color:var(--ink);font-weight:500;flex:1;line-height:1.5;}
-
-/* notes */
 .note-add-row{display:flex;gap:8px;margin-bottom:10px;}
 .note-add-row textarea{flex:1;border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--ink);resize:none;min-height:64px;}
-.note-add-row button{border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:0 16px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap;}
+.note-add-row button{border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:0 16px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;}
 .note-date-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
 .note-date-row label{font-size:13px;color:var(--muted);}
 .note-date-row input[type=date]{border:1px solid var(--line);border-radius:var(--radius-sm);padding:7px 10px;font-size:13px;font-family:inherit;background:var(--bg);color:var(--ink);}
 .note-item{background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:7px;}
-.note-item:last-child{margin-bottom:0;}
 .note-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
 .note-date-label{font-size:11px;color:var(--muted);}
 .note-del{border:none;background:none;color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline;font-family:inherit;}
-.note-text{font-size:14px;line-height:1.6;color:var(--ink);}
+.note-text{font-size:14px;line-height:1.6;}
 .no-notes{text-align:center;color:var(--muted);font-size:13px;padding:14px 0;}
-
-/* ── ADD/EDIT PAGE ── */
 #addPage{display:none;}
 .aheader{background:var(--card);border-bottom:1px solid var(--line);padding:14px 16px;position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;}
 .aback{border:none;background:none;font-size:26px;cursor:pointer;color:var(--ink);padding:0 4px;line-height:1;}
@@ -143,12 +101,12 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
 .afield textarea{resize:none;min-height:80px;}
 .afield-row{display:flex;gap:10px;}
 .afield-row .afield{flex:1;}
-.role-toggle{display:flex;gap:0;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;}
+.role-toggle{display:flex;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;}
 .role-toggle button{flex:1;border:none;background:var(--bg);color:var(--muted);padding:11px 0;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;}
 .role-toggle button.active.buyer{background:var(--buyer);color:#fff;}
 .role-toggle button.active.seller{background:var(--seller);color:#fff;}
 .buyer-only,.seller-only{display:none;}
-.btn-save{width:100%;border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:14px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px;letter-spacing:.03em;}
+.btn-save{width:100%;border:none;background:var(--accent);color:#fff;border-radius:var(--radius-sm);padding:14px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px;}
 .btn-del{width:100%;border:1px solid var(--red);background:none;color:var(--red);border-radius:var(--radius-sm);padding:13px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;margin-top:10px;display:none;}
 </style>
 </head>
@@ -158,11 +116,11 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
 <div id="loginPage">
 <div class="login-box">
   <div class="login-logo">🏠 房仲 CRM</div>
-  <div class="login-sub">請輸入 GitHub Token 與你的名字</div>
-  <div class="field"><label>GITHUB TOKEN</label><input id="tokenInput" type="password" placeholder="ghp_xxxxxxxx" autocomplete="off"></div>
-  <div class="field"><label>我的名字（顯示用）</label><input id="nameInput" type="text" placeholder="例：王小明"></div>
-  <button class="btn-primary" id="loginBtn">進入系統</button>
-  <div class="err-msg" id="loginErr"></div>
+  <div class="login-sub">請輸入帳號與密碼</div>
+  <div class="field"><label>帳號</label><input id="userInput" type="text" placeholder="請輸入帳號" autocomplete="username"></div>
+  <div class="field"><label>密碼</label><input id="pwInput" type="password" placeholder="請輸入密碼" autocomplete="current-password"></div>
+  <button class="btn-primary" id="loginBtn">登入</button>
+  <div class="err-msg" id="loginErr">帳號或密碼錯誤</div>
 </div>
 </div>
 
@@ -174,7 +132,7 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
 <div class="topbar">
   <div class="topbar-title">🏠 客戶名單</div>
   <span class="topbar-user" id="topbarUser"></span>
-  <div class="sync-dot" id="syncDot" title="同步狀態"></div>
+  <div class="sync-dot ok" id="syncDot"></div>
   <button class="topbar-logout" id="logoutBtn">登出</button>
 </div>
 <div class="wrap">
@@ -182,7 +140,6 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
     <button class="tab active" data-tab="list">名單</button>
     <button class="tab" data-tab="match">配對紀錄</button>
   </div>
-
   <div id="listSection">
     <div class="searchbar"><input id="searchInput" type="search" placeholder="搜尋姓名、建案、地區..."></div>
     <div class="filter-row">
@@ -192,9 +149,8 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
     </div>
     <div class="clist" id="clist"></div>
   </div>
-
   <div id="matchSection" style="display:none;">
-    <div class="empty"><div class="empty-icon">🔗</div><div>配對功能開發中<br>將自動比對買方需求與賣方物件</div></div>
+    <div class="empty"><div class="empty-icon">🔗</div><div>配對功能開發中</div></div>
   </div>
 </div>
 <button class="fab" id="fabBtn">＋</button>
@@ -220,7 +176,6 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
   <div class="aheader-title" id="aPageTitle">新增客戶</div>
 </div>
 <div class="abody">
-
 <div class="asec">
   <div class="asec-title">基本資料</div>
   <div class="afield"><label>姓名 *</label><input id="aName" type="text" placeholder="王小明"></div>
@@ -241,24 +196,19 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
   </div>
   <div class="afield"><label>地址</label><input id="aAddr" type="text" placeholder="詳細地址（選填）"></div>
 </div>
-
 <div class="asec">
   <div class="asec-title">買方 / 賣方</div>
-  <div class="afield">
-    <label>身份</label>
+  <div class="afield"><label>身份</label>
     <div class="role-toggle">
       <button id="roleBuyer" class="buyer active" onclick="setRole('buyer')">🟢 買方</button>
       <button id="roleSeller" class="seller" onclick="setRole('seller')">🟡 賣方</button>
     </div>
   </div>
   <input type="hidden" id="aRole" value="buyer">
-
-  <!-- 買方專屬 -->
   <div class="buyer-only">
     <div class="afield"><label>建案名稱 / 區域偏好</label><input id="aBuyProject" type="text" placeholder="例：台南安平、仁德高鐵旁"></div>
     <div class="afield"><label>格局</label>
-      <select id="aBuyLayout">
-        <option value="">選擇格局</option>
+      <select id="aBuyLayout"><option value="">選擇格局</option>
         <option>1房</option><option>2房1廳1衛</option><option>2房2廳1衛</option>
         <option>3房2廳1衛</option><option>3房2廳2衛</option><option>4房2廳2衛</option>
         <option>4房3廳3衛</option><option>透天</option><option>店面</option>
@@ -272,13 +222,10 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
     </div>
     <div class="afield"><label>其他需求</label><textarea id="aBuyNote" placeholder="車位、樓層、電梯、近學區..."></textarea></div>
   </div>
-
-  <!-- 賣方專屬 -->
   <div class="seller-only">
-    <div class="afield"><label>建案名稱</label><input id="aSellProject" type="text" placeholder="例：台南帝寶、X 號院"></div>
+    <div class="afield"><label>建案名稱</label><input id="aSellProject" type="text" placeholder="例：台南帝寶"></div>
     <div class="afield"><label>格局</label>
-      <select id="aSellLayout">
-        <option value="">選擇格局</option>
+      <select id="aSellLayout"><option value="">選擇格局</option>
         <option>1房</option><option>2房1廳1衛</option><option>2房2廳1衛</option>
         <option>3房2廳1衛</option><option>3房2廳2衛</option><option>4房2廳2衛</option>
         <option>4房3廳3衛</option><option>透天</option><option>店面</option>
@@ -287,137 +234,115 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
     </div>
     <div class="afield"><label>坪數</label><input id="aSellSize" type="text" placeholder="例：45坪"></div>
     <div class="afield"><label>開價（萬）</label><input id="aSellPrice" type="number" placeholder="1000"></div>
-    <div class="afield"><label>物件狀況備注</label><textarea id="aSellNote" placeholder="屋齡、停車位、管理費、特色..."></textarea></div>
+    <div class="afield"><label>物件狀況備注</label><textarea id="aSellNote" placeholder="屋齡、停車位、管理費..."></textarea></div>
   </div>
 </div>
-
 <div class="asec">
   <div class="asec-title">備注</div>
   <div class="afield"><textarea id="aGeneralNote" placeholder="其他備注..."></textarea></div>
 </div>
-
 <button class="btn-save" id="aSaveBtn">儲存</button>
 <button class="btn-del" id="aDelBtn">刪除這筆客戶</button>
-
 </div>
 </div>
 
 <script>
-// ── CONFIG ──
-const GH_USER = 'ankenli';// ← 你的 GitHub 帳號
-const GH_REPO = 'housetest'; // ← 儲存資料的 repo 名稱
-const GH_FILE = 'clients.json';
-const API_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${GH_FILE}`;
+// ── CONFIG（只有主管知道 Token）──
+const GH_USER = 'ankenli';
+const GH_REPO = 'housetest';
+const GH_TOKEN = 'PUT_YOUR_TOKEN_HERE'; // ← 貼上你的 GitHub Token
+const CLIENTS_FILE = 'clients.json';
+const ACCOUNTS_FILE = 'accounts.json';
+const CLIENTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${CLIENTS_FILE}`;
+const ACCOUNTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${ACCOUNTS_FILE}`;
 
-// ── STATE ──
-let clients = [], fileSha = null, currentId = null, editingId = null;
-let vFilter = 'all', searchQuery = '';
-let ghToken = localStorage.getItem('crm_gh_token') || '';
-let myName = localStorage.getItem('crm_my_name') || '';
-let saveTimer = null;
+const GH_HEADERS = { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' };
 
-const PAGES = ['loginPage','loadingPage','listPage','detailPage','addPage'];
-function show(id){
-  PAGES.forEach(p=>{
-    const el=document.getElementById(p);
-    if(!el)return;
-    el.style.display = p===id ? (p==='loadingPage'?'flex':'block') : 'none';
-  });
-  const fab=document.getElementById('fabBtn');
-  if(fab)fab.style.display=(id==='listPage')?'flex':'none';
-  if(id==='listPage')window.scrollTo(0,0);
+let clients = [], clientsSha = null, accounts = [], myName = '', saveTimer = null, currentId = null, editingId = null, vFilter = 'all', searchQuery = '';
+
+// ── GH HELPERS ──
+async function ghGet(url) {
+  const r = await fetch(url, { headers: GH_HEADERS });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error('讀取失敗');
+  const d = await r.json();
+  return { data: JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g, ''))))), sha: d.sha };
+}
+async function ghPut(url, data, sha) {
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  const body = { message: 'crm update', content }; if (sha) body.sha = sha;
+  const r = await fetch(url, { method: 'PUT', headers: GH_HEADERS, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error('儲存失敗');
+  const d = await r.json(); return d.content?.sha;
 }
 
-// ── SYNC ──
-function setSyncDot(s){
-  const d=document.getElementById('syncDot');
-  if(!d)return;
-  d.className='sync-dot '+(s==='ok'?'ok':s==='ing'?'ing':'err');
-  d.title=s==='ok'?'已同步':s==='ing'?'同步中...':'同步失敗';
-}
-
-async function ghGet(){
-  const r=await fetch(API_URL,{headers:{Authorization:'token '+ghToken,Accept:'application/vnd.github.v3+json'}});
-  if(r.status===404)return null;
-  if(!r.ok)throw new Error('讀取失敗');
-  const d=await r.json();fileSha=d.sha;
-  return JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))));
-}
-async function ghPut(data){
-  const content=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-  const body={message:'crm update',content};if(fileSha)body.sha=fileSha;
-  const r=await fetch(API_URL,{method:'PUT',headers:{Authorization:'token '+ghToken,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(!r.ok)throw new Error('儲存失敗');
-  const d=await r.json();if(d.content)fileSha=d.content.sha;
-}
-function scheduleSave(){
-  clearTimeout(saveTimer);setSyncDot('ing');
-  saveTimer=setTimeout(async()=>{
-    try{await ghPut(clients);setSyncDot('ok');}
-    catch(e){setSyncDot('err');}
-  },2000);
-}
-
-// ── LOGIN ──
-document.getElementById('loginBtn').onclick=async()=>{
-  const t=document.getElementById('tokenInput').value.trim();
-  const n=document.getElementById('nameInput').value.trim();
-  const err=document.getElementById('loginErr');
-  if(!t.startsWith('ghp_')&&!t.startsWith('github_pat_')){err.textContent='請輸入正確的 GitHub Token';err.style.display='block';return;}
-  if(!n){err.textContent='請輸入你的名字';err.style.display='block';return;}
-  err.style.display='none';
-  ghToken=t;myName=n;
-  localStorage.setItem('crm_gh_token',t);
-  localStorage.setItem('crm_my_name',n);
-  await startApp();
-};
-document.getElementById('logoutBtn').onclick=()=>{
-  localStorage.removeItem('crm_gh_token');localStorage.removeItem('crm_my_name');
-  ghToken='';myName='';show('loginPage');
-};
-
-async function startApp(){
+// ── AUTH ──
+document.getElementById('loginBtn').onclick = async () => {
+  const u = document.getElementById('userInput').value.trim();
+  const p = document.getElementById('pwInput').value.trim();
+  const err = document.getElementById('loginErr');
+  err.style.display = 'none';
   show('loadingPage');
-  try{
-    const remote=await ghGet();
-    clients=remote||[];
-    document.getElementById('topbarUser').textContent=myName;
-    renderList();show('listPage');setSyncDot('ok');
-  }catch(e){
-    show('loginPage');
-    document.getElementById('loginErr').textContent='Token 有誤或網路問題';
-    document.getElementById('loginErr').style.display='block';
-  }
+  try {
+    const res = await ghGet(ACCOUNTS_URL);
+    accounts = res ? res.data : [];
+    const found = accounts.find(a => a.username === u && a.password === p && a.active);
+    if (!found) { show('loginPage'); err.style.display = 'block'; return; }
+    myName = found.displayName;
+    sessionStorage.setItem('crm_user', JSON.stringify(found));
+    await loadClients();
+  } catch { show('loginPage'); err.textContent = '網路錯誤，請重試'; err.style.display = 'block'; }
+};
+document.getElementById('logoutBtn').onclick = () => { sessionStorage.removeItem('crm_user'); myName = ''; show('loginPage'); };
+
+async function loadClients() {
+  try {
+    const res = await ghGet(CLIENTS_URL);
+    clients = res ? res.data : []; clientsSha = res?.sha || null;
+    document.getElementById('topbarUser').textContent = myName;
+    renderList(); show('listPage'); setSyncDot('ok');
+  } catch { show('loginPage'); }
 }
 
-// ── RENDER LIST ──
-function todayISO(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');}
+// ── PAGES ──
+const PAGES = ['loginPage','loadingPage','listPage','detailPage','addPage'];
+function show(id) {
+  PAGES.forEach(p => { const el = document.getElementById(p); if (!el) return; el.style.display = p === id ? (p === 'loadingPage' ? 'flex' : 'block') : 'none'; });
+  const fab = document.getElementById('fabBtn'); if (fab) fab.style.display = id === 'listPage' ? 'flex' : 'none';
+  if (id === 'listPage') window.scrollTo(0, 0);
+}
+function setSyncDot(s) {
+  const d = document.getElementById('syncDot'); if (!d) return;
+  d.className = 'sync-dot ' + (s === 'ok' ? 'ok' : s === 'ing' ? 'ing' : 'err');
+}
+function scheduleSave() {
+  clearTimeout(saveTimer); setSyncDot('ing');
+  saveTimer = setTimeout(async () => {
+    try { clientsSha = await ghPut(CLIENTS_URL, clients, clientsSha); setSyncDot('ok'); }
+    catch { setSyncDot('err'); }
+  }, 2000);
+}
 
-function renderList(){
-  const list=document.getElementById('clist');if(!list)return;
-  let items=[...clients];
-  if(vFilter==='buyer')items=items.filter(c=>c.role==='buyer');
-  else if(vFilter==='seller')items=items.filter(c=>c.role==='seller');
-  if(searchQuery){
-    const q=searchQuery.toLowerCase();
-    items=items.filter(c=>(c.name||'').toLowerCase().includes(q)||(c.region||'').toLowerCase().includes(q)||(c.project||'').toLowerCase().includes(q));
-  }
-  list.innerHTML='';
-  if(!items.length){
-    list.innerHTML='<div class="empty"><div class="empty-icon">👤</div><div>這個分類目前沒有客戶</div></div>';return;
-  }
-  items.forEach(c=>{
-    const isBuyer=c.role==='buyer';
-    const card=document.createElement('div');card.className='ccard';
-    const project=isBuyer?(c.buyProject||''):(c.sellProject||'');
-    const spec=[isBuyer?(c.buyLayout||''):(c.sellLayout||''),isBuyer?(c.buySize||''):(c.sellSize||'')].filter(Boolean).join('／');
-    const budget=isBuyer&&(c.budgetMin||c.budgetMax)?`${c.budgetMin||'?'}～${c.budgetMax||'?'}萬`:'';
-    const price=!isBuyer&&c.sellPrice?`開價 ${c.sellPrice}萬`:'';
-    card.innerHTML=`
-      <div class="ccard-top">
-        <div class="ccard-name"></div>
-        <span class="role-badge ${isBuyer?'rb-buyer':'rb-seller'}">${isBuyer?'🟢 買方':'🟡 賣方'}</span>
-      </div>
+// ── LIST ──
+function myClients() { return clients.filter(c => c.agent === myName); }
+function todayISO() { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2,'0') + '-' + d.getDate().toString().padStart(2,'0'); }
+
+function renderList() {
+  const list = document.getElementById('clist'); if (!list) return;
+  let items = myClients();
+  if (vFilter === 'buyer') items = items.filter(c => c.role === 'buyer');
+  else if (vFilter === 'seller') items = items.filter(c => c.role === 'seller');
+  if (searchQuery) { const q = searchQuery; items = items.filter(c => (c.name||'').toLowerCase().includes(q)||(c.region||'').toLowerCase().includes(q)||(c.buyProject||'').toLowerCase().includes(q)||(c.sellProject||'').toLowerCase().includes(q)); }
+  list.innerHTML = '';
+  if (!items.length) { list.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div>沒有符合的客戶</div></div>'; return; }
+  items.forEach(c => {
+    const isBuyer = c.role === 'buyer';
+    const card = document.createElement('div'); card.className = 'ccard';
+    const project = isBuyer ? (c.buyProject||'') : (c.sellProject||'');
+    const spec = [isBuyer?(c.buyLayout||''):(c.sellLayout||''), isBuyer?(c.buySize||''):(c.sellSize||'')].filter(Boolean).join('／');
+    const budget = isBuyer&&(c.budgetMin||c.budgetMax)?`${c.budgetMin||'?'}～${c.budgetMax||'?'}萬`:'';
+    const price = !isBuyer&&c.sellPrice?`開價 ${c.sellPrice}萬`:'';
+    card.innerHTML = `<div class="ccard-top"><div class="ccard-name"></div><span class="role-badge ${isBuyer?'rb-buyer':'rb-seller'}">${isBuyer?'🟢 買方':'🟡 賣方'}</span></div>
       <div class="ccard-info">
         ${c.region?`<span class="cinfo">📍 <strong>${c.region}</strong></span>`:''}
         ${project?`<span class="cinfo">🏢 <strong>${project}</strong></span>`:''}
@@ -425,178 +350,114 @@ function renderList(){
         ${budget?`<span class="cinfo">💰 ${budget}</span>`:''}
         ${price?`<span class="cinfo">💰 ${price}</span>`:''}
       </div>`;
-    card.querySelector('.ccard-name').textContent=c.name||'（未命名）';
-    card.onclick=()=>openDetail(c.id);
+    card.querySelector('.ccard-name').textContent = c.name || '（未命名）';
+    card.onclick = () => openDetail(c.id);
     list.appendChild(card);
   });
 }
-
-document.getElementById('searchInput').addEventListener('input',e=>{searchQuery=e.target.value.trim().toLowerCase();renderList();});
-document.querySelectorAll('.ftag').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.ftag').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');vFilter=btn.dataset.f;renderList();
-  });
+document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value.trim().toLowerCase(); renderList(); });
+document.querySelectorAll('.ftag').forEach(btn => {
+  btn.addEventListener('click', () => { document.querySelectorAll('.ftag').forEach(b => b.classList.remove('active')); btn.classList.add('active'); vFilter = btn.dataset.f; renderList(); });
 });
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.addEventListener('click',()=>{
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    tab.classList.add('active');
-    const t=tab.dataset.tab;
-    document.getElementById('listSection').style.display=t==='list'?'block':'none';
-    document.getElementById('matchSection').style.display=t==='match'?'block':'none';
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); tab.classList.add('active');
+    const t = tab.dataset.tab;
+    document.getElementById('listSection').style.display = t === 'list' ? 'block' : 'none';
+    document.getElementById('matchSection').style.display = t === 'match' ? 'block' : 'none';
   });
 });
 
 // ── DETAIL ──
-function openDetail(id){
-  currentId=id;const c=clients.find(x=>x.id===id);if(!c)return;
-  const isBuyer=c.role==='buyer';
-  document.getElementById('dName').textContent=c.name||'（未命名）';
-  document.getElementById('dSub').textContent=(isBuyer?'🟢 買方':'🟡 賣方')+(c.region?' ‧ '+c.region:'');
-  const body=document.getElementById('dbody');
-  const f=(label,val)=>val?`<div class="dfield"><div class="dfield-label">${label}</div><div class="dfield-val">${val}</div></div>`:'';
-  const notes=c.notes||[];
-  const notesHtml=notes.length
-    ?[...notes].reverse().map((n,ri)=>{
-        const i=notes.length-1-ri;
-        return `<div class="note-item"><div class="note-meta"><span class="note-date-label">${n.date}</span><button class="note-del" data-i="${i}">刪除</button></div><div class="note-text"></div></div>`;
-      }).join('')
-    :'<div class="no-notes">還沒有聯絡紀錄</div>';
-
-  body.innerHTML=`
-    <div class="dsec">
-      <div class="dsec-title">基本資料</div>
-      ${f('電話',c.phone)}
-      ${f('地區',c.region)}
-      ${f('地址',c.addr)}
-    </div>
-    ${isBuyer?`
-    <div class="dsec">
-      <div class="dsec-title">買方需求</div>
-      ${f('偏好建案',c.buyProject)}
-      ${f('格局',c.buyLayout)}
-      ${f('坪數',c.buySize)}
-      ${f('預算',(c.budgetMin||c.budgetMax)?(c.budgetMin||'？')+'～'+(c.budgetMax||'？')+'萬':'')}
-      ${f('其他需求',c.buyNote)}
-    </div>`:
-    `<div class="dsec">
-      <div class="dsec-title">賣方物件</div>
-      ${f('建案名稱',c.sellProject)}
-      ${f('格局',c.sellLayout)}
-      ${f('坪數',c.sellSize)}
-      ${f('開價',c.sellPrice?c.sellPrice+'萬':'')}
-      ${f('物件備注',c.sellNote)}
-    </div>`}
+function openDetail(id) {
+  currentId = id; const c = clients.find(x => x.id === id); if (!c) return;
+  const isBuyer = c.role === 'buyer';
+  document.getElementById('dName').textContent = c.name || '（未命名）';
+  document.getElementById('dSub').textContent = (isBuyer?'🟢 買方':'🟡 賣方') + (c.region?' ‧ '+c.region:'');
+  const f = (label, val) => val ? `<div class="dfield"><div class="dfield-label">${label}</div><div class="dfield-val">${esc(val)}</div></div>` : '';
+  const notes = c.notes || [];
+  document.getElementById('dbody').innerHTML = `
+    <div class="dsec"><div class="dsec-title">基本資料</div>${f('電話',c.phone)}${f('地區',c.region)}${f('地址',c.addr)}</div>
+    ${isBuyer?`<div class="dsec"><div class="dsec-title">買方需求</div>${f('偏好建案',c.buyProject)}${f('格局',c.buyLayout)}${f('坪數',c.buySize)}${f('預算',(c.budgetMin||c.budgetMax)?(c.budgetMin||'?')+'～'+(c.budgetMax||'?')+'萬':'')}${f('其他需求',c.buyNote)}</div>`:
+    `<div class="dsec"><div class="dsec-title">賣方物件</div>${f('建案名稱',c.sellProject)}${f('格局',c.sellLayout)}${f('坪數',c.sellSize)}${f('開價',c.sellPrice?c.sellPrice+'萬':'')}${f('物件備注',c.sellNote)}</div>`}
     ${c.generalNote?`<div class="dsec">${f('備注',c.generalNote)}</div>`:''}
-    <div class="dsec">
-      <div class="dsec-title">聯絡紀錄</div>
+    <div class="dsec"><div class="dsec-title">聯絡紀錄</div>
       <div class="note-date-row"><label>日期</label><input type="date" id="noteDate" value="${todayISO()}"></div>
       <div class="note-add-row"><textarea id="noteInput" placeholder="今天聯絡了什麼..."></textarea><button id="noteAddBtn">新增</button></div>
-      <div id="notesList">${notesHtml}</div>
+      <div id="notesList">${notes.length ? [...notes].reverse().map((n,ri)=>{const i=notes.length-1-ri;return`<div class="note-item"><div class="note-meta"><span class="note-date-label">${esc(n.date)}</span><button class="note-del" data-i="${i}">刪除</button></div><div class="note-text">${esc(n.text)}</div></div>`;}).join('') : '<div class="no-notes">還沒有聯絡紀錄</div>'}</div>
     </div>`;
-
-  // bind note del
-  body.querySelectorAll('.note-del').forEach(btn=>{
-    const ri=parseInt(btn.dataset.i);
-    const noteText=btn.closest('.note-item').querySelector('.note-text');
-    const n=(c.notes||[])[ri];if(n)noteText.textContent=n.text;
-    btn.onclick=()=>{c.notes.splice(ri,1);scheduleSave();openDetail(id);};
+  document.getElementById('dbody').querySelectorAll('.note-del').forEach(btn => {
+    btn.onclick = () => { c.notes.splice(parseInt(btn.dataset.i),1); scheduleSave(); openDetail(id); };
   });
-  // fill note texts
-  body.querySelectorAll('.note-text').forEach((el,ri)=>{
-    const i=(c.notes||[]).length-1-ri;
-    if(c.notes&&c.notes[i])el.textContent=c.notes[i].text;
-  });
-  document.getElementById('noteAddBtn').onclick=()=>{
-    const inp=document.getElementById('noteInput');const v=inp.value.trim();if(!v)return;
-    const d=document.getElementById('noteDate').value||todayISO();
-    if(!c.notes)c.notes=[];
-    c.notes.push({date:d,text:v});inp.value='';scheduleSave();openDetail(id);
+  document.getElementById('noteAddBtn').onclick = () => {
+    const v = document.getElementById('noteInput').value.trim(); if (!v) return;
+    const d = document.getElementById('noteDate').value || todayISO();
+    if (!c.notes) c.notes = []; c.notes.push({date:d,text:v}); document.getElementById('noteInput').value = '';
+    scheduleSave(); openDetail(id);
   };
-  show('detailPage');window.scrollTo(0,0);
+  show('detailPage'); window.scrollTo(0,0);
 }
-document.getElementById('dBackBtn').onclick=()=>{show('listPage');renderList();};
-document.getElementById('dEditBtn').onclick=()=>openAddPage(currentId);
+document.getElementById('dBackBtn').onclick = () => { show('listPage'); renderList(); };
+document.getElementById('dEditBtn').onclick = () => openAddPage(currentId);
 
 // ── ADD/EDIT ──
-function setRole(r){
-  document.getElementById('aRole').value=r;
-  document.getElementById('roleBuyer').className='buyer'+(r==='buyer'?' active':'');
-  document.getElementById('roleSeller').className='seller'+(r==='seller'?' active':'');
-  document.querySelectorAll('.buyer-only').forEach(el=>el.style.display=r==='buyer'?'block':'none');
-  document.querySelectorAll('.seller-only').forEach(el=>el.style.display=r==='seller'?'block':'none');
+function setRole(r) {
+  document.getElementById('aRole').value = r;
+  document.getElementById('roleBuyer').className = 'buyer' + (r==='buyer'?' active':'');
+  document.getElementById('roleSeller').className = 'seller' + (r==='seller'?' active':'');
+  document.querySelectorAll('.buyer-only').forEach(el => el.style.display = r==='buyer'?'block':'none');
+  document.querySelectorAll('.seller-only').forEach(el => el.style.display = r==='seller'?'block':'none');
 }
-window.setRole=setRole;
+window.setRole = setRole;
 
-function openAddPage(id){
-  editingId=id||null;
-  const c=id?clients.find(x=>x.id===id):null;
-  document.getElementById('aPageTitle').textContent=c?'編輯客戶':'新增客戶';
-  document.getElementById('aName').value=c?c.name:'';
-  document.getElementById('aPhone').value=c?c.phone||'':'';
-  document.getElementById('aRegion').value=c?c.region||'':'';
-  document.getElementById('aAddr').value=c?c.addr||'':'';
+function openAddPage(id) {
+  editingId = id || null; const c = id ? clients.find(x=>x.id===id) : null;
+  document.getElementById('aPageTitle').textContent = c ? '編輯客戶' : '新增客戶';
+  document.getElementById('aName').value = c?c.name:'';
+  document.getElementById('aPhone').value = c?c.phone||'':'';
+  document.getElementById('aRegion').value = c?c.region||'':'';
+  document.getElementById('aAddr').value = c?c.addr||'':'';
   setRole(c?c.role:'buyer');
-  document.getElementById('aBuyProject').value=c?c.buyProject||'':'';
-  document.getElementById('aBuyLayout').value=c?c.buyLayout||'':'';
-  document.getElementById('aBuySize').value=c?c.buySize||'':'';
-  document.getElementById('aBudgetMin').value=c?c.budgetMin||'':'';
-  document.getElementById('aBudgetMax').value=c?c.budgetMax||'':'';
-  document.getElementById('aBuyNote').value=c?c.buyNote||'':'';
-  document.getElementById('aSellProject').value=c?c.sellProject||'':'';
-  document.getElementById('aSellLayout').value=c?c.sellLayout||'':'';
-  document.getElementById('aSellSize').value=c?c.sellSize||'':'';
-  document.getElementById('aSellPrice').value=c?c.sellPrice||'':'';
-  document.getElementById('aSellNote').value=c?c.sellNote||'':'';
-  document.getElementById('aGeneralNote').value=c?c.generalNote||'':'';
-  document.getElementById('aDelBtn').style.display=c?'block':'none';
-  show('addPage');window.scrollTo(0,0);
+  document.getElementById('aBuyProject').value = c?c.buyProject||'':'';
+  document.getElementById('aBuyLayout').value = c?c.buyLayout||'':'';
+  document.getElementById('aBuySize').value = c?c.buySize||'':'';
+  document.getElementById('aBudgetMin').value = c?c.budgetMin||'':'';
+  document.getElementById('aBudgetMax').value = c?c.budgetMax||'':'';
+  document.getElementById('aBuyNote').value = c?c.buyNote||'':'';
+  document.getElementById('aSellProject').value = c?c.sellProject||'':'';
+  document.getElementById('aSellLayout').value = c?c.sellLayout||'':'';
+  document.getElementById('aSellSize').value = c?c.sellSize||'':'';
+  document.getElementById('aSellPrice').value = c?c.sellPrice||'':'';
+  document.getElementById('aSellNote').value = c?c.sellNote||'':'';
+  document.getElementById('aGeneralNote').value = c?c.generalNote||'':'';
+  document.getElementById('aDelBtn').style.display = c?'block':'none';
+  show('addPage'); window.scrollTo(0,0);
 }
-document.getElementById('fabBtn').onclick=()=>openAddPage(null);
-document.getElementById('aBackBtn').onclick=()=>{
-  if(editingId){show('detailPage');}else{show('listPage');renderList();}
-};
-document.getElementById('aSaveBtn').onclick=()=>{
-  const name=document.getElementById('aName').value.trim();
-  if(!name){alert('請輸入姓名');return;}
-  const role=document.getElementById('aRole').value;
-  const data={
-    name,role,
-    phone:document.getElementById('aPhone').value.trim(),
-    region:document.getElementById('aRegion').value,
-    addr:document.getElementById('aAddr').value.trim(),
-    buyProject:document.getElementById('aBuyProject').value.trim(),
-    buyLayout:document.getElementById('aBuyLayout').value,
-    buySize:document.getElementById('aBuySize').value.trim(),
-    budgetMin:document.getElementById('aBudgetMin').value,
-    budgetMax:document.getElementById('aBudgetMax').value,
-    buyNote:document.getElementById('aBuyNote').value.trim(),
-    sellProject:document.getElementById('aSellProject').value.trim(),
-    sellLayout:document.getElementById('aSellLayout').value,
-    sellSize:document.getElementById('aSellSize').value.trim(),
-    sellPrice:document.getElementById('aSellPrice').value,
-    sellNote:document.getElementById('aSellNote').value.trim(),
-    generalNote:document.getElementById('aGeneralNote').value.trim(),
-    agent:myName,
-  };
-  if(editingId){
-    const idx=clients.findIndex(x=>x.id===editingId);
+document.getElementById('fabBtn').onclick = () => openAddPage(null);
+document.getElementById('aBackBtn').onclick = () => { if(editingId){show('detailPage');}else{show('listPage');renderList();} };
+document.getElementById('aSaveBtn').onclick = () => {
+  const name = document.getElementById('aName').value.trim(); if(!name){alert('請輸入姓名');return;}
+  const role = document.getElementById('aRole').value;
+  const data = { name, role, phone:document.getElementById('aPhone').value.trim(), region:document.getElementById('aRegion').value, addr:document.getElementById('aAddr').value.trim(), buyProject:document.getElementById('aBuyProject').value.trim(), buyLayout:document.getElementById('aBuyLayout').value, buySize:document.getElementById('aBuySize').value.trim(), budgetMin:document.getElementById('aBudgetMin').value, budgetMax:document.getElementById('aBudgetMax').value, buyNote:document.getElementById('aBuyNote').value.trim(), sellProject:document.getElementById('aSellProject').value.trim(), sellLayout:document.getElementById('aSellLayout').value, sellSize:document.getElementById('aSellSize').value.trim(), sellPrice:document.getElementById('aSellPrice').value, sellNote:document.getElementById('aSellNote').value.trim(), generalNote:document.getElementById('aGeneralNote').value.trim(), agent:myName };
+  if (editingId) {
+    const idx = clients.findIndex(x=>x.id===editingId);
     if(idx!==-1){data.id=editingId;data.notes=clients[idx].notes||[];clients[idx]=data;}
-    scheduleSave();openDetail(editingId);
-  }else{
-    data.id='c_'+Date.now();data.notes=[];
-    clients.unshift(data);scheduleSave();renderList();show('listPage');
+    scheduleSave(); openDetail(editingId);
+  } else {
+    data.id='c_'+Date.now(); data.notes=[];
+    clients.unshift(data); scheduleSave(); renderList(); show('listPage');
   }
 };
-document.getElementById('aDelBtn').onclick=()=>{
-  const c=clients.find(x=>x.id===editingId);if(!c)return;
-  if(confirm('確定要刪除「'+c.name+'」？'))
-    {clients=clients.filter(x=>x.id!==editingId);scheduleSave();renderList();show('listPage');}
+document.getElementById('aDelBtn').onclick = () => {
+  const c = clients.find(x=>x.id===editingId); if(!c)return;
+  if(confirm('確定要刪除「'+c.name+'」？')){ clients=clients.filter(x=>x.id!==editingId); scheduleSave(); renderList(); show('listPage'); }
 };
 
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
 // ── INIT ──
-if(ghToken&&myName){startApp();}else{show('loginPage');}
+const saved = sessionStorage.getItem('crm_user');
+if (saved) { const u = JSON.parse(saved); myName = u.displayName; loadClients(); } else { show('loginPage'); }
 </script>
 </body>
 </html>
