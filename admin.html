@@ -267,9 +267,9 @@ tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
 // ── CONFIG ──
 const GH_USER = 'ankenli';
 const GH_REPO = 'housetest';
-const GH_TOKEN = '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'; // ← 貼上你的 GitHub Token
-const ADMIN_PW_HASH = 'anken0416';       // ← 主管密碼（明碼，之後可改）
-const ADMIN_USER = 'anken0416';              // ← 主管帳號
+const GH_TOKEN = 'PUT_YOUR_TOKEN_HERE'; // ← 貼上你的 GitHub Token
+const ADMIN_PW_HASH = 'admin2025';       // ← 主管密碼（明碼，之後可改）
+const ADMIN_USER = 'admin';              // ← 主管帳號
 const BOSS_NAME = '老闆';
 
 const CLIENTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/clients.json`;
@@ -280,9 +280,21 @@ let clients=[], clientsSha=null, accounts=[], accountsSha=null;
 
 // ── GH HELPERS ──
 async function ghGet(url){
-  const r=await fetch(url,{headers:GH_HEADERS});
+  console.log('[CRM-DEBUG] fetching:', url);
+  let r;
+  try{
+    r=await fetch(url,{headers:GH_HEADERS});
+  }catch(fetchErr){
+    console.error('[CRM-DEBUG] fetch() threw an error before getting a response:', fetchErr);
+    throw fetchErr;
+  }
+  console.log('[CRM-DEBUG] response status:', r.status);
   if(r.status===404)return null;
-  if(!r.ok)throw new Error();
+  if(!r.ok){
+    const bodyText=await r.text().catch(()=>'(could not read body)');
+    console.error('[CRM-DEBUG] GitHub API error body:', bodyText);
+    throw new Error('GitHub API '+r.status+': '+bodyText);
+  }
   const d=await r.json();
   return{data:JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g,''))))),sha:d.sha};
 }
@@ -319,9 +331,10 @@ async function loadAll(){
     accounts=ar?ar.data:[];accountsSha=ar?.sha||null;
     sessionStorage.setItem('admin_ok','1');
     show('mainPage');buildAll();setSyncDot('ok');
-  }catch{
+  }catch(e){
+    console.error('[CRM-DEBUG] loadAll failed:', e);
     show('loginPage');
-    document.getElementById('loginErr').textContent='Token 有誤或網路問題';
+    document.getElementById('loginErr').textContent='載入失敗：'+(e&&e.message?e.message:'未知錯誤')+'（詳情請看主控台 Console）';
     document.getElementById('loginErr').style.display='block';
   }
 }
