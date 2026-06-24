@@ -119,6 +119,7 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
   <div class="login-sub">請輸入帳號與密碼</div>
   <div class="field"><label>帳號</label><input id="userInput" type="text" placeholder="請輸入帳號" autocomplete="username"></div>
   <div class="field"><label>密碼</label><input id="pwInput" type="password" placeholder="請輸入密碼" autocomplete="current-password"></div>
+  <div class="field" id="tokenField" style="display:none"><label>GitHub Token（首次設定）</label><input id="ghTokenInput" type="password" placeholder="ghp_xxxxxxxx" autocomplete="off"></div>
   <button class="btn-primary" id="loginBtn">登入</button>
   <div class="err-msg" id="loginErr">帳號或密碼錯誤</div>
 </div>
@@ -250,13 +251,14 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
 // ── CONFIG ──
 const GH_USER = 'ankenli';
 const GH_REPO = 'housetest';
-const CLIENTS_FILE = 'clients.json';
-const ACCOUNTS_FILE = 'accounts.json';
-const CLIENTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${CLIENTS_FILE}`;
-const ACCOUNTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${ACCOUNTS_FILE}`;
+const CLIENTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/clients.json`;
+const ACCOUNTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/accounts.json`;
 
-const GH_TOKEN = 'PUT_YOUR_TOKEN_HERE'; // ← 貼上新申請的 GitHub Token
-function ghHeaders(){ return { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }; }
+let GH_TOKEN = localStorage.getItem('crm_gh_token') || '';
+function ghHeaders(){ return { Authorization:'token '+GH_TOKEN, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' }; }
+
+// 沒有 Token 就顯示 Token 輸入欄
+if(!GH_TOKEN) document.getElementById('tokenField').style.display='flex';
 
 let clients = [], clientsSha = null, accounts = [], myName = '', saveTimer = null, currentId = null, editingId = null, vFilter = 'all', searchQuery = '';
 
@@ -288,6 +290,13 @@ document.getElementById('loginBtn').onclick = async () => {
   const p = document.getElementById('pwInput').value.trim();
   const err = document.getElementById('loginErr');
   err.style.display = 'none';
+  // 如果還沒有 Token，從輸入框取得並存起來
+  if (!GH_TOKEN) {
+    const t = document.getElementById('ghTokenInput').value.trim();
+    if (!t) { err.textContent = '請輸入 GitHub Token'; err.style.display = 'block'; return; }
+    GH_TOKEN = t;
+    localStorage.setItem('crm_gh_token', t);
+  }
   show('loadingPage');
   try {
     const res = await ghGet(ACCOUNTS_URL);
@@ -299,6 +308,8 @@ document.getElementById('loginBtn').onclick = async () => {
     await loadClients();
   } catch (e) {
     console.error('[CRM-DEBUG] login failed:', e);
+    // 如果是 401，清掉舊 Token 讓使用者重新輸入
+    if(e.message && e.message.includes('401')){ localStorage.removeItem('crm_gh_token'); GH_TOKEN=''; document.getElementById('tokenField').style.display='flex'; }
     show('loginPage');
     err.textContent = '登入失敗：' + (e && e.message ? e.message : '未知錯誤');
     err.style.display = 'block';

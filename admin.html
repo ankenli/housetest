@@ -165,7 +165,7 @@ tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
   <div class="login-sub">房仲 CRM · 管理介面</div>
   <div class="field"><label>主管帳號</label><input id="adminUser" type="text" placeholder="請輸入帳號" autocomplete="username"></div>
   <div class="field"><label>主管密碼</label><input id="adminPw" type="password" placeholder="請輸入密碼" autocomplete="current-password"></div>
-  <div class="field"><label>GitHub Token</label><input id="ghTokenInput" type="password" placeholder="ghp_xxxxxxxx" autocomplete="off"></div>
+  <div class="field" id="ghTokenField" style="display:none"><label>GitHub Token（首次設定）</label><input id="ghTokenInput" type="password" placeholder="ghp_xxxxxxxx" autocomplete="off"></div>
   <button class="btn-primary" id="loginBtn">進入後台</button>
   <div class="err-msg" id="loginErr">帳號或密碼錯誤</div>
 </div>
@@ -268,15 +268,18 @@ tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
 // ── CONFIG ──
 const GH_USER = 'ankenli';
 const GH_REPO = 'housetest';
-const ADMIN_PW_HASH = 'anken0416';       // ← 主管密碼（明碼，之後可改）
-const ADMIN_USER = 'anken0416';              // ← 主管帳號
+const ADMIN_PW_HASH = 'admin2025';       // ← 主管密碼（明碼，之後可改）
+const ADMIN_USER = 'admin';              // ← 主管帳號
 const BOSS_NAME = '老闆';
 
 const CLIENTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/clients.json`;
 const ACCOUNTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/accounts.json`;
 
-let GH_TOKEN = sessionStorage.getItem('admin_gh_token') || '';
+let GH_TOKEN = localStorage.getItem('admin_gh_token') || '';
 function ghHeaders(){ return { Authorization:'token '+GH_TOKEN, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' }; }
+
+// 沒有 Token 就顯示輸入欄
+if(!GH_TOKEN) document.getElementById('ghTokenField').style.display='flex';
 
 let clients=[], clientsSha=null, accounts=[], accountsSha=null;
 
@@ -318,17 +321,19 @@ function setSyncDot(s){
 document.getElementById('loginBtn').onclick=async()=>{
   const u=document.getElementById('adminUser').value.trim();
   const p=document.getElementById('adminPw').value.trim();
-  const t=document.getElementById('ghTokenInput').value.trim();
   const err=document.getElementById('loginErr');
   if(u!==ADMIN_USER||p!==ADMIN_PW_HASH){err.textContent='帳號或密碼錯誤';err.style.display='block';return;}
-  if(!t){err.textContent='請輸入 GitHub Token';err.style.display='block';return;}
+  if(!GH_TOKEN){
+    const t=document.getElementById('ghTokenInput').value.trim();
+    if(!t){err.textContent='請輸入 GitHub Token';err.style.display='block';return;}
+    GH_TOKEN=t;
+    localStorage.setItem('admin_gh_token',t);
+  }
   err.style.display='none';
-  GH_TOKEN=t;
-  sessionStorage.setItem('admin_gh_token',t);
   show('loadingPage');
   await loadAll();
 };
-document.getElementById('logoutBtn').onclick=()=>{sessionStorage.removeItem('admin_ok');sessionStorage.removeItem('admin_gh_token');GH_TOKEN='';show('loginPage');};
+document.getElementById('logoutBtn').onclick=()=>{sessionStorage.removeItem('admin_ok');show('loginPage');};
 
 async function loadAll(){
   try{
@@ -339,8 +344,10 @@ async function loadAll(){
     show('mainPage');buildAll();setSyncDot('ok');
   }catch(e){
     console.error('[CRM-DEBUG] loadAll failed:', e);
+    // 401 時清掉 Token，下次要重新輸入
+    if(e.message&&e.message.includes('401')){localStorage.removeItem('admin_gh_token');GH_TOKEN='';document.getElementById('ghTokenField').style.display='flex';}
     show('loginPage');
-    document.getElementById('loginErr').textContent='載入失敗：'+(e&&e.message?e.message:'未知錯誤')+'（詳情請看主控台 Console）';
+    document.getElementById('loginErr').textContent='載入失敗：'+(e&&e.message?e.message:'未知錯誤');
     document.getElementById('loginErr').style.display='block';
   }
 }
