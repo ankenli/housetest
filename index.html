@@ -116,10 +116,9 @@ body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",sans-serif
 <div id="loginPage">
 <div class="login-box">
   <div class="login-logo">🏠 房仲 CRM</div>
-  <div class="login-sub">請輸入帳號、密碼與 GitHub Token</div>
+  <div class="login-sub">請輸入帳號與密碼</div>
   <div class="field"><label>帳號</label><input id="userInput" type="text" placeholder="請輸入帳號" autocomplete="username"></div>
   <div class="field"><label>密碼</label><input id="pwInput" type="password" placeholder="請輸入密碼" autocomplete="current-password"></div>
-  <div class="field"><label>GitHub Token</label><input id="ghTokenInput" type="password" placeholder="ghp_xxxxxxxx" autocomplete="off"></div>
   <button class="btn-primary" id="loginBtn">登入</button>
   <div class="err-msg" id="loginErr">帳號或密碼錯誤</div>
 </div>
@@ -256,7 +255,7 @@ const ACCOUNTS_FILE = 'accounts.json';
 const CLIENTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${CLIENTS_FILE}`;
 const ACCOUNTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${ACCOUNTS_FILE}`;
 
-let GH_TOKEN = sessionStorage.getItem('crm_gh_token') || '';
+const GH_TOKEN = 'PUT_YOUR_TOKEN_HERE'; // ← 貼上新申請的 GitHub Token
 function ghHeaders(){ return { Authorization: 'token ' + GH_TOKEN, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }; }
 
 let clients = [], clientsSha = null, accounts = [], myName = '', saveTimer = null, currentId = null, editingId = null, vFilter = 'all', searchQuery = '';
@@ -287,12 +286,8 @@ async function ghPut(url, data, sha) {
 document.getElementById('loginBtn').onclick = async () => {
   const u = document.getElementById('userInput').value.trim();
   const p = document.getElementById('pwInput').value.trim();
-  const t = document.getElementById('ghTokenInput').value.trim();
   const err = document.getElementById('loginErr');
   err.style.display = 'none';
-  if (!t) { err.textContent = '請輸入 GitHub Token'; err.style.display = 'block'; return; }
-  GH_TOKEN = t;
-  sessionStorage.setItem('crm_gh_token', t);
   show('loadingPage');
   try {
     const res = await ghGet(ACCOUNTS_URL);
@@ -309,7 +304,7 @@ document.getElementById('loginBtn').onclick = async () => {
     err.style.display = 'block';
   }
 };
-document.getElementById('logoutBtn').onclick = () => { sessionStorage.removeItem('crm_user'); sessionStorage.removeItem('crm_gh_token'); myName = ''; GH_TOKEN=''; show('loginPage'); };
+document.getElementById('logoutBtn').onclick = () => { sessionStorage.removeItem('crm_user'); myName = ''; show('loginPage'); };
 
 async function loadClients() {
   try {
@@ -473,7 +468,7 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 // ── INIT ──
 const saved = sessionStorage.getItem('crm_user');
-if (saved && GH_TOKEN) { const u = JSON.parse(saved); myName = u.displayName; loadClients(); } else { show('loginPage'); }
+if (saved) { const u = JSON.parse(saved); myName = u.displayName; loadClients(); } else { show('loginPage'); }
 </script>
 </body>
 </html>
