@@ -327,8 +327,8 @@ tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
 // ── CONFIG ──
 const GH_USER = 'ankenli';
 const GH_REPO = 'housetest';
-const ADMIN_PW_HASH = 'anken';       // ← 主管密碼（明碼，之後可改）
-const ADMIN_USER = 'anken';              // ← 主管帳號
+const ADMIN_PW_HASH = 'admin2025';       // ← 主管密碼（明碼，之後可改）
+const ADMIN_USER = 'admin';              // ← 主管帳號
 const BOSS_NAME = '老闆';
 
 const CLIENTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/clients.json`;
@@ -504,10 +504,10 @@ function runMatch(){
   const sellers=clients.filter(c=>c.role==='seller');
   const matches=[];
   buyers.forEach(b=>{sellers.forEach(s=>{
-    let score=0;const hits=[];
+    // 地區不符合直接淘汰
+    if(!b.region||!s.region||b.region!==s.region)return;
 
-    // 1. 地區（35分）
-    if(b.region&&s.region&&b.region===s.region){score+=35;hits.push('✅ 地區相符');}
+    let score=35;const hits=['✅ 地區相符'];
 
     // 2. 預算 vs 開價（25分 / 部分12分）
     if(b.budgetMax&&s.sellPrice){
@@ -537,13 +537,12 @@ function runMatch(){
     if(b.buyProject&&s.sellProject){
       const bProj=b.buyProject.toLowerCase();
       const sProj=s.sellProject.toLowerCase();
-      // 取買方偏好中的每個詞（2字以上）去比對賣方建案名稱
       const keywords=bProj.split(/[\s,，、]+/).filter(k=>k.length>=2);
       const matched=keywords.some(k=>sProj.includes(k))||sProj.split(/[\s,，、]+/).some(k=>k.length>=2&&bProj.includes(k));
       if(matched){score+=10;hits.push('✅ 偏好吻合');}
     }
 
-    if(score>=50)matches.push({buyer:b,seller:s,score,hits});
+    matches.push({buyer:b,seller:s,score,hits});
   });});
   return matches.sort((a,b)=>b.score-a.score);
 }
@@ -557,31 +556,34 @@ function renderMatch(){
   let matches=runMatch();
   if(region)matches=matches.filter(m=>m.buyer.region===region||m.seller.region===region);
   const grid=document.getElementById('matchGrid');
-  if(!matches.length){grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:48px 0;font-size:14px;">目前沒有符合的配對<br><span style="font-size:12px;">需要買賣方地區相符且總分達 50 分以上</span></div>';return;}
-  grid.innerHTML=matches.map(m=>`
-    <div class="mcard">
-      <div class="mcard-score" style="background:${m.score>=80?'#dcfce7':m.score>=60?'#eff4ff':'#fef3c7'};color:${m.score>=80?'#0e7a4f':m.score>=60?'#1d4ed8':'#b45309'};border-color:${m.score>=80?'#0e7a4f':m.score>=60?'#1d4ed8':'#b45309'}">${m.score}%</div>
+  if(!matches.length){grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:48px 0;font-size:14px;">目前沒有配對<br><span style="font-size:12px;">地區不符合的組合已自動排除</span></div>';return;}
+  grid.innerHTML=matches.map((m,i)=>{
+    const sc=m.score>=80?'#0e7a4f':m.score>=60?'#1d4ed8':'#b45309';
+    const bg=m.score>=80?'#dcfce7':m.score>=60?'#eff4ff':'#fef3c7';
+    return`<div class="mcard" style="cursor:pointer;" onclick="openMatchModal('${m.buyer.id}','${m.seller.id}')">
+      <div class="mcard-score" style="background:${bg};color:${sc};border-color:${sc}">${m.score}%</div>
       <div class="mcard-body">
         <div class="mcard-row">
           <span class="role-badge rb-buyer">🟢 ${esc(m.buyer.name)}</span>
           <span style="color:var(--muted)">×</span>
           <span class="role-badge rb-seller">🟡 ${esc(m.seller.name)}</span>
+          <span style="margin-left:auto;font-size:12px;color:var(--muted);">點擊查看詳情 ›</span>
         </div>
         <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">
           買方業務：${esc(m.buyer.agent||'—')} ／ 賣方業務：${esc(m.seller.agent||'—')}
         </div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">
-          ${m.buyer.region?`📍 ${esc(m.buyer.region)}`:''}
+          📍 ${esc(m.buyer.region||'—')}
           ${m.buyer.budgetMax?` ‧ 💰 預算 ${esc(m.buyer.budgetMin||'?')}～${esc(m.buyer.budgetMax)}萬`:''}
           ${m.seller.sellPrice?` ‧ 開價 ${esc(m.seller.sellPrice)}萬`:''}
           ${m.buyer.buyLayout?` ‧ ${esc(m.buyer.buyLayout)}`:''}
-          ${m.buyer.buySize?` ‧ ${esc(m.buyer.buySize)}`:''}
         </div>
         <div class="mcard-tags">
           ${m.hits.map(h=>`<span class="mtag ${h.startsWith('✅')?'hit':''}">${h}</span>`).join('')}
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 document.getElementById('matchRegion').addEventListener('change',renderMatch);
 document.getElementById('runMatchBtn').onclick=async()=>{setSyncDot('ing');await loadAll();};
@@ -799,6 +801,62 @@ async function toggleAccount(username,active){
 window.toggleAccount=toggleAccount;
 
 // ── MODAL ──
+function openMatchModal(buyerId, sellerId){
+  const b=clients.find(x=>x.id===buyerId);
+  const s=clients.find(x=>x.id===sellerId);
+  if(!b||!s)return;
+  const {score,detail}=scorePair(b,s);
+  const sc=score>=80?'#0e7a4f':score>=60?'#1d4ed8':'#b45309';
+  const bg=score>=80?'#dcfce7':score>=60?'#eff4ff':'#fef3c7';
+  const f=(label,val)=>val?`<div class="mfield"><div class="mf-label">${label}</div><div class="mf-val">${esc(val)}</div></div>`:'';
+  const scoreRow=(label,d)=>`
+    <div class="sc-breakdown-row">
+      <span class="sc-breakdown-label">${label}（最高${d.max}分）</span>
+      <span class="sc-breakdown-val ${d.hit||'miss'}">${d.score}分 ${d.hit==='hit'?'✅':d.hit==='partial'?'⚠️':'—'}</span>
+    </div>`;
+  document.getElementById('modalTitle').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:52px;height:52px;border-radius:50%;background:${bg};color:${sc};border:2px solid ${sc};font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${score}%</div>
+      <div>
+        <div style="font-size:13px;font-weight:400;color:var(--muted);margin-bottom:2px;">配對詳情</div>
+        <span class="role-badge rb-buyer">🟢 ${esc(b.name)}</span> × <span class="role-badge rb-seller">🟡 ${esc(s.name)}</span>
+      </div>
+    </div>`;
+  document.getElementById('modalBody').innerHTML=`
+    <div class="msec">
+      <div class="msec-title">評分明細</div>
+      <div class="sc-breakdown open" style="display:block;">
+        ${scoreRow('📍 地區',detail.region)}
+        ${scoreRow('💰 預算',detail.price)}
+        ${scoreRow('🏠 格局',detail.layout)}
+        ${scoreRow('📐 坪數',detail.size)}
+        ${scoreRow('🏢 偏好',detail.project)}
+        <div class="sc-breakdown-row" style="font-weight:700;font-size:15px;margin-top:4px;">
+          <span>總分</span>
+          <span style="color:${sc}">${score} / 100</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;">
+      <div class="msec" style="margin-bottom:0;">
+        <div class="msec-title">🟢 買方 — ${esc(b.name)}</div>
+        ${f('負責業務',b.agent)}${f('電話',b.phone)}${f('地區',b.region)}
+        ${f('偏好建案',b.buyProject)}${f('格局',b.buyLayout)}${f('坪數',b.buySize)}
+        ${f('預算',(b.budgetMin||b.budgetMax)?(b.budgetMin||'?')+'～'+(b.budgetMax||'?')+'萬':'')}
+        ${f('其他需求',b.buyNote)}
+      </div>
+      <div class="msec" style="margin-bottom:0;">
+        <div class="msec-title">🟡 賣方 — ${esc(s.name)}</div>
+        ${f('負責業務',s.agent)}${f('電話',s.phone)}${f('地區',s.region)}
+        ${f('建案名稱',s.sellProject)}${f('格局',s.sellLayout)}${f('坪數',s.sellSize)}
+        ${f('開價',s.sellPrice?s.sellPrice+'萬':'')}
+        ${f('物件備注',s.sellNote)}
+      </div>
+    </div>`;
+  document.getElementById('modalOverlay').style.display='flex';
+}
+window.openMatchModal=openMatchModal;
+
 function openModal(id){
   const c=clients.find(x=>x.id===id);if(!c)return;
   const isBuyer=c.role==='buyer';
