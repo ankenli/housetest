@@ -327,8 +327,8 @@ tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
 // ── CONFIG ──
 const GH_USER = 'ankenli';
 const GH_REPO = 'housetest';
-const ADMIN_PW_HASH = 'anken';       // ← 主管密碼（明碼，之後可改）
-const ADMIN_USER = 'anken';              // ← 主管帳號
+const ADMIN_PW_HASH = 'admin2025';       // ← 主管密碼（明碼，之後可改）
+const ADMIN_USER = 'admin';              // ← 主管帳號
 const BOSS_NAME = '老闆';
 
 const CLIENTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/clients.json`;
@@ -648,13 +648,15 @@ function renderSingle(){
   let pairs=opponents.map(op=>{
     const b=role==='buyer'?target:op;
     const s=role==='buyer'?op:target;
+    // 地區不符合直接淘汰
+    if(!b.region||!s.region||b.region!==s.region)return null;
     const {score,detail}=scorePair(b,s);
     return{op,score,detail};
-  });
+  }).filter(Boolean);
   // 條件篩選
   if(filterKey!=='all') pairs=pairs.filter(p=>p.detail[filterKey]?.hit==='hit');
   pairs.sort((a,b)=>b.score-a.score);
-  if(!pairs.length){result.innerHTML='<div class="sc-empty">沒有符合條件的配對</div>';return;}
+  if(!pairs.length){result.innerHTML='<div class="sc-empty">沒有符合條件的配對<br><span style="font-size:12px;color:var(--muted);">地區不符合的已自動排除</span></div>';return;}
 
   const oppRole=role==='buyer'?'seller':'buyer';
   result.innerHTML=pairs.map((p,i)=>{
