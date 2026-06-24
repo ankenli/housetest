@@ -143,6 +143,29 @@ tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
 .note-chip-meta{font-size:11px;color:var(--muted);margin-bottom:3px;}
 .note-chip-text{font-size:14px;}
 
+/* SINGLE CLIENT */
+.sc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;display:flex;gap:14px;align-items:flex-start;margin-bottom:10px;}
+.sc-score{min-width:56px;height:56px;border-radius:50%;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid;flex-shrink:0;}
+.sc-score.high{background:#dcfce7;color:#0e7a4f;border-color:#0e7a4f;}
+.sc-score.mid{background:#eff4ff;color:#1d4ed8;border-color:#1d4ed8;}
+.sc-score.low{background:#fef3c7;color:#b45309;border-color:#b45309;}
+.sc-body{flex:1;min-width:0;}
+.sc-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.sc-meta{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.6;}
+.sc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.sc-breakdown{background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;display:none;}
+.sc-breakdown.open{display:block;}
+.sc-breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--line);font-size:13px;}
+.sc-breakdown-row:last-child{border-bottom:none;}
+.sc-breakdown-label{color:var(--muted);}
+.sc-breakdown-val{font-weight:700;}
+.sc-breakdown-val.hit{color:var(--green);}
+.sc-breakdown-val.miss{color:var(--muted);}
+.sc-breakdown-val.partial{color:var(--gold);}
+.sc-detail-btn{border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:var(--radius-sm);padding:5px 12px;font-size:12px;font-family:inherit;cursor:pointer;font-weight:500;}
+.sc-detail-btn:hover{background:var(--line);}
+.sc-empty{text-align:center;color:var(--muted);padding:48px 0;font-size:14px;}
+
 @media(max-width:768px){
   .sidebar{width:100%;height:56px;flex-direction:row;bottom:auto;}
   .sb-logo{padding:0 16px;border-bottom:none;border-right:1px solid rgba(255,255,255,.1);height:100%;display:flex;align-items:center;}
@@ -182,6 +205,7 @@ tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
     <div class="sb-item active" data-sec="overview"><span class="icon">📊</span>總覽</div>
     <div class="sb-item" data-sec="clients"><span class="icon">👥</span>所有客戶</div>
     <div class="sb-item" data-sec="match"><span class="icon">🔗</span>配對結果</div>
+    <div class="sb-item" data-sec="single"><span class="icon">🔍</span>單客查詢</div>
     <div class="sb-item" data-sec="stats"><span class="icon">📈</span>業績統計</div>
     <div class="sb-item" data-sec="accounts"><span class="icon">🔑</span>帳號管理</div>
   </div>
@@ -250,6 +274,41 @@ tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
     <div class="acc-grid" id="accGrid"></div>
   </div>
 
+  <!-- 單客查詢 -->
+  <div id="sec-single" class="section" style="display:none">
+    <div class="page-title">單客查詢</div>
+    <div class="page-sub">選定一位客戶，查看他與所有對方的配對分數</div>
+
+    <div class="tcard" style="padding:18px;margin-bottom:16px;">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:160px;">
+          <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;">查詢身份</label>
+          <select class="filter-select" id="singleRole" style="width:100%">
+            <option value="buyer">🟢 買方（查配對賣方）</option>
+            <option value="seller">🟡 賣方（查配對買方）</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex:2;min-width:200px;">
+          <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;">選擇客戶</label>
+          <select class="filter-select" id="singleClient" style="width:100%"><option value="">— 請選擇 —</option></select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:140px;">
+          <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;">條件篩選</label>
+          <select class="filter-select" id="singleFilter" style="width:100%">
+            <option value="all">全部條件</option>
+            <option value="region">📍 地區符合</option>
+            <option value="price">💰 預算符合</option>
+            <option value="layout">🏠 格局符合</option>
+            <option value="size">📐 坪數符合</option>
+            <option value="project">🏢 偏好吻合</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="singleResult"></div>
+  </div>
+
 </div>
 </div>
 
@@ -268,9 +327,9 @@ tr.clickable:hover td{background:#f8f9ff;cursor:pointer;}
 // ── CONFIG ──
 const GH_USER = 'ankenli';
 const GH_REPO = 'housetest';
-const ADMIN_PW_HASH = 'anken0416';       // ← 主管密碼（明碼，之後可改）
-const ADMIN_USER = 'anken0416';              // ← 主管帳號
-const BOSS_NAME = '老王';
+const ADMIN_PW_HASH = 'admin2025';       // ← 主管密碼（明碼，之後可改）
+const ADMIN_USER = 'admin';              // ← 主管帳號
+const BOSS_NAME = '老闆';
 
 const CLIENTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/clients.json`;
 const ACCOUNTS_URL = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/accounts.json`;
@@ -370,7 +429,7 @@ document.querySelectorAll('.sb-item').forEach(item=>{
   };
 });
 
-function buildAll(){buildOverview();buildClientTable();buildMatch();buildStats();buildAccounts();}
+function buildAll(){buildOverview();buildClientTable();buildMatch();buildSingle();buildStats();buildAccounts();}
 
 // ── OVERVIEW ──
 function buildOverview(){
@@ -432,17 +491,59 @@ document.getElementById('roleFilter').addEventListener('change',renderClientTabl
 document.getElementById('agentFilter').addEventListener('change',renderClientTable);
 
 // ── MATCH ──
+function parseSize(str){
+  // 解析坪數字串，回傳 {min, max}，例如 "30～50坪" → {min:30,max:50}，"45坪" → {min:45,max:45}
+  if(!str)return null;
+  const nums=str.replace(/[^\d～~\-\.]/g,'').split(/[～~\-]/).map(Number).filter(n=>!isNaN(n)&&n>0);
+  if(nums.length===2)return{min:nums[0],max:nums[1]};
+  if(nums.length===1)return{min:nums[0],max:nums[0]};
+  return null;
+}
 function runMatch(){
   const buyers=clients.filter(c=>c.role==='buyer');
   const sellers=clients.filter(c=>c.role==='seller');
   const matches=[];
   buyers.forEach(b=>{sellers.forEach(s=>{
     let score=0;const hits=[];
-    if(b.region&&s.region&&b.region===s.region){score+=40;hits.push('✅ 地區相符');}
-    if(b.buyLayout&&s.sellLayout&&b.buyLayout===s.sellLayout){score+=30;hits.push('✅ 格局相符');}
-    if(b.budgetMax&&s.sellPrice){const bMax=parseInt(b.budgetMax),sp=parseInt(s.sellPrice);
-      if(!isNaN(bMax)&&!isNaN(sp)){if(sp<=bMax){score+=30;hits.push('✅ 預算符合');}else if(sp<=bMax*1.15){score+=15;hits.push('⚠️ 預算略超');}}}
-    if(score>=30)matches.push({buyer:b,seller:s,score,hits});
+
+    // 1. 地區（35分）
+    if(b.region&&s.region&&b.region===s.region){score+=35;hits.push('✅ 地區相符');}
+
+    // 2. 預算 vs 開價（25分 / 部分12分）
+    if(b.budgetMax&&s.sellPrice){
+      const bMax=parseInt(b.budgetMax),sp=parseInt(s.sellPrice);
+      if(!isNaN(bMax)&&!isNaN(sp)){
+        if(sp<=bMax){score+=25;hits.push('✅ 預算符合');}
+        else if(sp<=bMax*1.15){score+=12;hits.push('⚠️ 預算略超');}
+      }
+    }
+
+    // 3. 格局（20分）
+    if(b.buyLayout&&s.sellLayout&&b.buyLayout===s.sellLayout){score+=20;hits.push('✅ 格局相符');}
+
+    // 4. 坪數（10分 / 部分5分）
+    const bSize=parseSize(b.buySize);
+    const sSize=parseSize(s.sellSize);
+    if(bSize&&sSize){
+      const sellMid=(sSize.min+sSize.max)/2;
+      if(sellMid>=bSize.min&&sellMid<=bSize.max){score+=10;hits.push('✅ 坪數符合');}
+      else{
+        const gap=sellMid<bSize.min?(bSize.min-sellMid)/bSize.min:(sellMid-bSize.max)/bSize.max;
+        if(gap<=0.1){score+=5;hits.push('⚠️ 坪數略差');}
+      }
+    }
+
+    // 5. 建案/區域偏好關鍵字（10分）
+    if(b.buyProject&&s.sellProject){
+      const bProj=b.buyProject.toLowerCase();
+      const sProj=s.sellProject.toLowerCase();
+      // 取買方偏好中的每個詞（2字以上）去比對賣方建案名稱
+      const keywords=bProj.split(/[\s,，、]+/).filter(k=>k.length>=2);
+      const matched=keywords.some(k=>sProj.includes(k))||sProj.split(/[\s,，、]+/).some(k=>k.length>=2&&bProj.includes(k));
+      if(matched){score+=10;hits.push('✅ 偏好吻合');}
+    }
+
+    if(score>=50)matches.push({buyer:b,seller:s,score,hits});
   });});
   return matches.sort((a,b)=>b.score-a.score);
 }
@@ -456,27 +557,149 @@ function renderMatch(){
   let matches=runMatch();
   if(region)matches=matches.filter(m=>m.buyer.region===region||m.seller.region===region);
   const grid=document.getElementById('matchGrid');
-  if(!matches.length){grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:48px 0;font-size:14px;">目前沒有符合的配對</div>';return;}
+  if(!matches.length){grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:48px 0;font-size:14px;">目前沒有符合的配對<br><span style="font-size:12px;">需要買賣方地區相符且總分達 50 分以上</span></div>';return;}
   grid.innerHTML=matches.map(m=>`
     <div class="mcard">
-      <div class="mcard-score">${m.score}%</div>
+      <div class="mcard-score" style="background:${m.score>=80?'#dcfce7':m.score>=60?'#eff4ff':'#fef3c7'};color:${m.score>=80?'#0e7a4f':m.score>=60?'#1d4ed8':'#b45309'};border-color:${m.score>=80?'#0e7a4f':m.score>=60?'#1d4ed8':'#b45309'}">${m.score}%</div>
       <div class="mcard-body">
         <div class="mcard-row">
           <span class="role-badge rb-buyer">🟢 ${esc(m.buyer.name)}</span>
           <span style="color:var(--muted)">×</span>
           <span class="role-badge rb-seller">🟡 ${esc(m.seller.name)}</span>
         </div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">業務：${esc(m.buyer.agent||'—')} / ${esc(m.seller.agent||'—')}</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">
+          買方業務：${esc(m.buyer.agent||'—')} ／ 賣方業務：${esc(m.seller.agent||'—')}
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">
+          ${m.buyer.region?`📍 ${esc(m.buyer.region)}`:''}
+          ${m.buyer.budgetMax?` ‧ 💰 預算 ${esc(m.buyer.budgetMin||'?')}～${esc(m.buyer.budgetMax)}萬`:''}
+          ${m.seller.sellPrice?` ‧ 開價 ${esc(m.seller.sellPrice)}萬`:''}
+          ${m.buyer.buyLayout?` ‧ ${esc(m.buyer.buyLayout)}`:''}
+          ${m.buyer.buySize?` ‧ ${esc(m.buyer.buySize)}`:''}
+        </div>
         <div class="mcard-tags">
           ${m.hits.map(h=>`<span class="mtag ${h.startsWith('✅')?'hit':''}">${h}</span>`).join('')}
-          ${m.buyer.region?`<span class="mtag">${esc(m.buyer.region)}</span>`:''}
-          ${m.buyer.buyLayout?`<span class="mtag">${esc(m.buyer.buyLayout)}</span>`:''}
         </div>
       </div>
     </div>`).join('');
 }
 document.getElementById('matchRegion').addEventListener('change',renderMatch);
 document.getElementById('runMatchBtn').onclick=async()=>{setSyncDot('ing');await loadAll();};
+
+// ── SINGLE CLIENT ──
+function scorePair(b, s){
+  // 完整配對計算，回傳 {score, detail}
+  const detail = {
+    region:  {score:0, max:35, label:'地區', hit:''},
+    price:   {score:0, max:25, label:'預算', hit:''},
+    layout:  {score:0, max:20, label:'格局', hit:''},
+    size:    {score:0, max:10, label:'坪數', hit:''},
+    project: {score:0, max:10, label:'偏好', hit:''},
+  };
+  // 地區
+  if(b.region&&s.region&&b.region===s.region){detail.region.score=35;detail.region.hit='hit';}
+  // 預算
+  if(b.budgetMax&&s.sellPrice){
+    const bMax=parseInt(b.budgetMax),sp=parseInt(s.sellPrice);
+    if(!isNaN(bMax)&&!isNaN(sp)){
+      if(sp<=bMax){detail.price.score=25;detail.price.hit='hit';}
+      else if(sp<=bMax*1.15){detail.price.score=12;detail.price.hit='partial';}
+    }
+  }
+  // 格局
+  if(b.buyLayout&&s.sellLayout&&b.buyLayout===s.sellLayout){detail.layout.score=20;detail.layout.hit='hit';}
+  // 坪數
+  const bSize=parseSize(b.buySize),sSize=parseSize(s.sellSize);
+  if(bSize&&sSize){
+    const mid=(sSize.min+sSize.max)/2;
+    if(mid>=bSize.min&&mid<=bSize.max){detail.size.score=10;detail.size.hit='hit';}
+    else{const gap=mid<bSize.min?(bSize.min-mid)/bSize.min:(mid-bSize.max)/bSize.max;if(gap<=0.1){detail.size.score=5;detail.size.hit='partial';}}
+  }
+  // 偏好
+  if(b.buyProject&&s.sellProject){
+    const bP=b.buyProject.toLowerCase(),sP=s.sellProject.toLowerCase();
+    const kw=bP.split(/[\s,，、]+/).filter(k=>k.length>=2);
+    if(kw.some(k=>sP.includes(k))||sP.split(/[\s,，、]+/).some(k=>k.length>=2&&bP.includes(k))){detail.project.score=10;detail.project.hit='hit';}
+  }
+  const score=Object.values(detail).reduce((s,d)=>s+d.score,0);
+  return{score,detail};
+}
+
+function buildSingle(){
+  const role=document.getElementById('singleRole').value;
+  const sel=document.getElementById('singleClient');
+  const list=clients.filter(c=>c.role===role);
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— 請選擇 —</option>'+list.map(c=>`<option value="${c.id}">${esc(c.name)}${c.agent?' ('+esc(c.agent)+')':''}</option>`).join('');
+  if(cur)sel.value=cur;
+  renderSingle();
+}
+function renderSingle(){
+  const role=document.getElementById('singleRole').value;
+  const clientId=document.getElementById('singleClient').value;
+  const filterKey=document.getElementById('singleFilter').value;
+  const result=document.getElementById('singleResult');
+  if(!clientId){result.innerHTML='<div class="sc-empty">請先選擇一位客戶</div>';return;}
+  const target=clients.find(c=>c.id===clientId);
+  if(!target){result.innerHTML='<div class="sc-empty">找不到客戶</div>';return;}
+  const opponents=clients.filter(c=>c.role!==(role==='buyer'?'buyer':'seller')&&c.role===(role==='buyer'?'seller':'buyer'));
+  let pairs=opponents.map(op=>{
+    const b=role==='buyer'?target:op;
+    const s=role==='buyer'?op:target;
+    const {score,detail}=scorePair(b,s);
+    return{op,score,detail};
+  });
+  // 條件篩選
+  if(filterKey!=='all') pairs=pairs.filter(p=>p.detail[filterKey]?.hit==='hit');
+  pairs.sort((a,b)=>b.score-a.score);
+  if(!pairs.length){result.innerHTML='<div class="sc-empty">沒有符合條件的配對</div>';return;}
+
+  const oppRole=role==='buyer'?'seller':'buyer';
+  result.innerHTML=pairs.map((p,i)=>{
+    const scoreClass=p.score>=80?'high':p.score>=60?'mid':'low';
+    const op=p.op;
+    const d=p.detail;
+    const money=oppRole==='seller'?(op.sellPrice?`開價 ${op.sellPrice}萬`:''):(op.budgetMax?`預算 ${op.budgetMin||'?'}～${op.budgetMax}萬`:'');
+    return`<div class="sc-card">
+      <div class="sc-score ${scoreClass}">${p.score}%</div>
+      <div class="sc-body">
+        <div class="sc-name">${esc(op.name)} <span style="font-size:12px;font-weight:400;color:var(--muted);">${esc(op.agent||'')}</span></div>
+        <div class="sc-meta">
+          ${op.region?`📍 ${esc(op.region)}`:''}
+          ${money?` ‧ 💰 ${money}`:''}
+          ${(oppRole==='seller'?op.sellLayout:op.buyLayout)?` ‧ ${esc((oppRole==='seller'?op.sellLayout:op.buyLayout))}`:''}
+          ${(oppRole==='seller'?op.sellSize:op.buySize)?` ‧ ${esc((oppRole==='seller'?op.sellSize:op.buySize))}`:''}
+          ${(oppRole==='seller'?op.sellProject:op.buyProject)?` ‧ 🏢 ${esc((oppRole==='seller'?op.sellProject:op.buyProject))}`:''}
+        </div>
+        <div class="sc-tags">
+          ${d.region.hit==='hit'?'<span class="mtag hit">✅ 地區</span>':''}
+          ${d.price.hit==='hit'?'<span class="mtag hit">✅ 預算</span>':d.price.hit==='partial'?'<span class="mtag" style="background:#fef3c7;border-color:#b45309;color:#b45309">⚠️ 預算略超</span>':''}
+          ${d.layout.hit==='hit'?'<span class="mtag hit">✅ 格局</span>':''}
+          ${d.size.hit==='hit'?'<span class="mtag hit">✅ 坪數</span>':d.size.hit==='partial'?'<span class="mtag" style="background:#fef3c7;border-color:#b45309;color:#b45309">⚠️ 坪數略差</span>':''}
+          ${d.project.hit==='hit'?'<span class="mtag hit">✅ 偏好</span>':''}
+        </div>
+        <button class="sc-detail-btn" onclick="toggleBreakdown(this,'bd_${i}')">查看詳情 ▾</button>
+        <div class="sc-breakdown" id="bd_${i}">
+          <div class="sc-breakdown-row"><span class="sc-breakdown-label">📍 地區（最高35分）</span><span class="sc-breakdown-val ${d.region.hit||'miss'}">${d.region.score}分 ${d.region.hit==='hit'?'✅':d.region.hit==='partial'?'⚠️':'—'}</span></div>
+          <div class="sc-breakdown-row"><span class="sc-breakdown-label">💰 預算（最高25分）</span><span class="sc-breakdown-val ${d.price.hit||'miss'}">${d.price.score}分 ${d.price.hit==='hit'?'✅':d.price.hit==='partial'?'⚠️略超':'—'}</span></div>
+          <div class="sc-breakdown-row"><span class="sc-breakdown-label">🏠 格局（最高20分）</span><span class="sc-breakdown-val ${d.layout.hit||'miss'}">${d.layout.score}分 ${d.layout.hit==='hit'?'✅':'—'}</span></div>
+          <div class="sc-breakdown-row"><span class="sc-breakdown-label">📐 坪數（最高10分）</span><span class="sc-breakdown-val ${d.size.hit||'miss'}">${d.size.score}分 ${d.size.hit==='hit'?'✅':d.size.hit==='partial'?'⚠️略差':'—'}</span></div>
+          <div class="sc-breakdown-row"><span class="sc-breakdown-label">🏢 偏好（最高10分）</span><span class="sc-breakdown-val ${d.project.hit||'miss'}">${d.project.score}分 ${d.project.hit==='hit'?'✅':'—'}</span></div>
+          <div class="sc-breakdown-row" style="font-weight:700;font-size:14px;"><span>總分</span><span class="sc-breakdown-val ${scoreClass==='high'?'hit':scoreClass==='mid'?'':''}" style="color:${scoreClass==='high'?'var(--green)':scoreClass==='mid'?'var(--accent)':'var(--gold)'}">${p.score} / 100</span></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleBreakdown(btn,id){
+  const bd=document.getElementById(id);
+  const open=bd.classList.toggle('open');
+  btn.textContent=open?'收起詳情 ▴':'查看詳情 ▾';
+}
+window.toggleBreakdown=toggleBreakdown;
+document.getElementById('singleRole').addEventListener('change',()=>buildSingle());
+document.getElementById('singleClient').addEventListener('change',()=>renderSingle());
+document.getElementById('singleFilter').addEventListener('change',()=>renderSingle());
 
 // ── STATS ──
 function buildStats(){
